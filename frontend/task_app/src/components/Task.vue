@@ -1,13 +1,15 @@
 <template>
-    <v-layout row wrap>
-      <v-flex xs3>
-        <v-card color="blue-grey darken-2" class="white--text">
-          <v-card-title primary-title>
-            <div class="headline">{{ task.title }}</div>
-            <div>{{ task.description }}</div>
+    <v-layout row wrap mb-2>
+      <v-flex>
+        <v-card>
+          <v-card-title class="primary-title pa-2">
+            <div class="subheading font-weight-normal">{{ task.title }}</div>
           </v-card-title>
           <v-card-actions>
-            <v-btn flat dark>Listen now</v-btn>
+            <v-icon style="color:#64B5F6">branding_watermark</v-icon>
+          </v-card-actions>
+          <v-card-actions>
+            <div class="grey--text">{{ task.branch }}</div>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -23,4 +25,7 @@ export default {
 </script>
 
 <style>
+.font-weight-normal {
+  font-weight: normal;
+}
 </style>
