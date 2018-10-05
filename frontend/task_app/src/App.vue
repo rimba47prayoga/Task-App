@@ -1,16 +1,32 @@
 <template>
   <div id="app">
-    <layout></layout>
+    <v-app id="inspire">
+      <side-bar v-bind:drawer="drawer"></side-bar>
+      <nav-bar v-bind:drawer="drawer"></nav-bar>
+      <v-content>
+        <router-view></router-view>
+      </v-content>
+    </v-app>
   </div>
 </template>
 
 <script>
-import Layout from "./components/Layout";
+import NavBar from './components/Layout/NavBar';
+import SideBar from './components/Layout/SideBar';
+import Content from './components/Layout/Content';
+
 
 export default {
   name: "app",
   components: {
-    Layout
+    NavBar,
+    SideBar,
+    Content
+  },
+  data(){
+    return {
+      drawer: null
+    }
   }
 };
 </script>

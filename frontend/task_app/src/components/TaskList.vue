@@ -35,34 +35,34 @@ export default {
   data: () => {
     return {
       tasks: [
-        // {
-        //   id: 1,
-        //   title: "Create Micro services for notifications",
-        //   type: {
-        //     name: TaskType.SUB_TASK,
-        //     icon: "branding_watermark"
-        //   },
-        //   progress: TaskProgress.TODO,
-        //   branch: "NAV-0001",
-        //   priority: {
-        //     type: TaskPriority.MEDIUM
-        //   },
-        //   description: "This is description a for task a"
-        // },
-        // {
-        //   id: 2,
-        //   title: "Task B",
-        //   type: {
-        //     name: TaskType.SUB_TASK,
-        //     icon: "branding_watermark"
-        //   },
-        //   progress: TaskProgress.TODO,
-        //   branch: "NAV-0002",
-        //   priority: {
-        //     type: TaskPriority.MEDIUM
-        //   },
-        //   description: "This is description a for task b"
-        // }
+        {
+          id: 1,
+          title: "Create Micro services for notifications",
+          type: {
+            name: TaskType.SUB_TASK,
+            icon: "branding_watermark"
+          },
+          progress: TaskProgress.TODO,
+          branch: "NAV-0001",
+          priority: {
+            type: TaskPriority.MEDIUM
+          },
+          description: "This is description a for task a"
+        },
+        {
+          id: 2,
+          title: "Task B",
+          type: {
+            name: TaskType.SUB_TASK,
+            icon: "branding_watermark"
+          },
+          progress: TaskProgress.TODO,
+          branch: "NAV-0002",
+          priority: {
+            type: TaskPriority.MEDIUM
+          },
+          description: "This is description a for task b"
+        }
       ],
       tasks_progress: TaskProgress.getProgressDisplay()
     };
@@ -92,16 +92,16 @@ export default {
       }
     }
   },
-  created(){
-    request.get('/api/task/')
-    .then(response => {
-      let result = response.data
-      result.map(data => {
-        data.type = this.setTaskType(data.task_type);
-      });
-      this.tasks = result;
-    })
-  }
+  // created(){
+  //   request.get('/api/task/')
+  //   .then(response => {
+  //     let result = response.data
+  //     result.map(data => {
+  //       data.type = this.setTaskType(data.task_type);
+  //     });
+  //     this.tasks = result;
+  //   })
+  // }
 };
 </script>
 
