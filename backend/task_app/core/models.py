@@ -3,7 +3,7 @@ from django.db import models
 
 
 class BaseModel(models.Model):
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_date = models.DateTimeField(auto_now_add=True)
 
     is_deleted = models.BooleanField(default=False)

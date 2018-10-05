@@ -4,7 +4,7 @@ class TaskChoices(object):
     PROGRESS_CHOICES = (
         (TODO, 'TODO'),
         (IN_PROGRESS, 'IN PROGRESS'),
-        (IN_REPO, 'IN REPO'),
+        (IN_REPO, 'IN REPOSITORY'),
         (TEST, 'TEST'),
         (DONE, 'DONE')
     )

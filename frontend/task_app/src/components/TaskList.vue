@@ -9,6 +9,7 @@
           </v-card-actions>
         </v-card>
       </v-flex>
+
       <v-flex xs3 pa-3 v-for="progress in tasks_progress" :key="progress.display">
         <v-card color="grey lighten-4" class="black--text mb-2">
           <task v-for="task in getData(progress.type)" :key="task.id" v-bind:task="task"></task>
@@ -22,7 +23,10 @@
 
 <script>
 import Task from "./Task";
-import TaskProgress from "./TaskProgress.js";
+import TaskProgress from "../constants/TaskProgress.js";
+import TaskType from "../constants/TaskType.js";
+import TaskPriority from "../constants/TaskPriority.js";
+import request from "../services/request.js";
 
 export default {
   components: {
@@ -31,30 +35,72 @@ export default {
   data: () => {
     return {
       tasks: [
-        {
-          id: 1,
-          title: "Create Micro services for notifications",
-          type: TaskProgress.TODO,
-          branch: "NAV-0001",
-          description: "This is description a for task a"
-        },
-        {
-          id: 2,
-          title: "Task B",
-          type: TaskProgress.TODO,
-          branch: "NAV-0002",
-          description: "This is description a for task b"
-        }
+        // {
+        //   id: 1,
+        //   title: "Create Micro services for notifications",
+        //   type: {
+        //     name: TaskType.SUB_TASK,
+        //     icon: "branding_watermark"
+        //   },
+        //   progress: TaskProgress.TODO,
+        //   branch: "NAV-0001",
+        //   priority: {
+        //     type: TaskPriority.MEDIUM
+        //   },
+        //   description: "This is description a for task a"
+        // },
+        // {
+        //   id: 2,
+        //   title: "Task B",
+        //   type: {
+        //     name: TaskType.SUB_TASK,
+        //     icon: "branding_watermark"
+        //   },
+        //   progress: TaskProgress.TODO,
+        //   branch: "NAV-0002",
+        //   priority: {
+        //     type: TaskPriority.MEDIUM
+        //   },
+        //   description: "This is description a for task b"
+        // }
       ],
       tasks_progress: TaskProgress.getProgressDisplay()
     };
   },
   methods: {
-    getData(type){
+    getData(progress){
       return this.tasks.filter(task => {
-        return task.type == type;
+        return task.progress == progress;
       });
+    },
+    setTaskType(type){
+      var icon;
+      switch(type){
+        case TaskType.TASK:
+          icon = null;
+          break;
+        case TaskType.SUB_TASK:
+          icon = "branding_watermark";
+          break;
+        case TaskType.BUG:
+          icon = null;
+          break;
+      };
+      return {
+        name: type,
+        icon: icon
+      }
     }
+  },
+  created(){
+    request.get('/api/task/')
+    .then(response => {
+      let result = response.data
+      result.map(data => {
+        data.type = this.setTaskType(data.task_type);
+      });
+      this.tasks = result;
+    })
   }
 };
 </script>

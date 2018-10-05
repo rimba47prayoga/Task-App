@@ -16,14 +16,28 @@ class Task(BaseModel):
     label = models.CharField(max_length=255, null=True, blank=True)
     priority = models.IntegerField(choices=TaskChoices.PRIORITY_CHOICES)
     branch = models.CharField(max_length=20, unique=True)
-    assignee = models.ForeignKey(User, null=True, blank=True)
+    assignee = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='assignee'
+    )
     progress = models.IntegerField(
         choices=TaskChoices.PROGRESS_CHOICES,
         default=TaskChoices.TODO
     )
     
-    parent = models.ForeignKey('self', null=True, blank=True)
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     
     descriptions = models.TextField()
     
     objects = TaskManager()
+
+    def __str__(self):
+        return self.title
