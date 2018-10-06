@@ -12,3 +12,6 @@ class TaskViewSet(generics.ListAPIView,
                   viewsets.GenericViewSet):
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        return super(TaskViewSet, self).list(request, *args, **kwargs)

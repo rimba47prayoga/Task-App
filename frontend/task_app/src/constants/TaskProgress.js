@@ -1,9 +1,9 @@
 export default {
-  TODO: 1,
-  IN_PROGRESS: 2,
-  IN_REPO: 3,
-  TEST: 4,
-  DONE: 5,
+  TODO: 0,
+  IN_PROGRESS: 1,
+  IN_REPO: 2,
+  TEST: 3,
+  DONE: 4,
 
   getProgressDisplay () {
     return [

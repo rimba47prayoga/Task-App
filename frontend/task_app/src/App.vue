@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <v-app id="inspire">
-      <side-bar v-bind:drawer="drawer"></side-bar>
-      <nav-bar v-bind:drawer="drawer"></nav-bar>
+      <side-bar></side-bar>
+      <nav-bar></nav-bar>
       <v-content>
         <router-view></router-view>
       </v-content>
@@ -22,11 +22,6 @@ export default {
     NavBar,
     SideBar,
     Content
-  },
-  data(){
-    return {
-      drawer: null
-    }
   }
 };
 </script>

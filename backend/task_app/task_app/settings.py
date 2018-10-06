@@ -49,6 +49,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'api',
     'core',
+    'etc',
     'task'
 ]
 
