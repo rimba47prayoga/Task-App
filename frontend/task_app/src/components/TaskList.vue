@@ -67,26 +67,7 @@ export default {
   data: () => {
     return {
       isLoading: false,
-      tasks: [
-        // {
-        //   id: 1,
-        //   title: "Create Micro services for notifications",
-        //   task_type: TaskType.SUB_TASK,
-        //   progress: TaskProgress.TODO,
-        //   branch: "NAV-0001",
-        //   priority: TaskPriority.MEDIUM,
-        //   description: "This is description a for task a"
-        // },
-        // {
-        //   id: 2,
-        //   title: "Task B",
-        //   task_type: TaskType.SUB_TASK,
-        //   progress: TaskProgress.TODO,
-        //   branch: "NAV-0002",
-        //   priority:  TaskPriority.MEDIUM,
-        //   description: "This is description a for task b"
-        // }
-      ],
+      tasks: [],
       tasks_progress: TaskProgress.getProgressDisplay()
     };
   },

@@ -1,8 +1,11 @@
+from django.contrib.auth.models import User
 from rest_framework import generics
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from .models import Task
-from .serializers import TaskSerializer
+from .serializers import TaskSerializer, AssigneeSerializer
 
 
 class TaskViewSet(generics.ListAPIView,
@@ -13,5 +16,25 @@ class TaskViewSet(generics.ListAPIView,
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
 
+    def get_serializer_class(self):
+        if self.action == 'assignee_task':
+            return AssigneeSerializer
+        return super(TaskViewSet, self).get_serializer_class()
+
     def list(self, request, *args, **kwargs):
+        import time
+        time.sleep(3)
         return super(TaskViewSet, self).list(request, *args, **kwargs)
+
+    @action(methods=['get'], detail=False)
+    def parent_task(self, request):
+        queryset = self.queryset.values('id', 'title', 'branch')
+        import time
+        time.sleep(3)
+        return Response(queryset)
+
+    @action(methods=['get'], detail=False)
+    def assignee_task(self, request):
+        queryset = User.objects.all()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

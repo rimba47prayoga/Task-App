@@ -59,13 +59,13 @@ export default {
       let icon;
       switch(this.task.task_type){
         case TaskType.TASK:
-          icon = null;
+          icon = "check_box";
           break;
         case TaskType.SUB_TASK:
           icon = "branding_watermark";
           break;
         case TaskType.BUG:
-          icon = null;
+          icon = "bug_report";
           break;
       };
       return icon;

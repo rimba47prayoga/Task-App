@@ -1,5 +1,7 @@
 import axios from "axios";
 
+require('promise.prototype.finally').shim();
+
 axios.interceptors.request.use(config => {
   return config
 })
