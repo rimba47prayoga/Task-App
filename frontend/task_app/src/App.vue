@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-    <v-app id="inspire">
+    <v-app id="inspire" v-if="isLoggedIn">
       <side-bar></side-bar>
       <nav-bar></nav-bar>
       <v-content>
         <router-view></router-view>
       </v-content>
     </v-app>
+    <router-view v-else></router-view>
   </div>
 </template>
 
@@ -22,6 +23,11 @@ export default {
     NavBar,
     SideBar,
     Content
+  },
+  data(){
+    return {
+      isLoggedIn: false
+    }
   }
 };
 </script>

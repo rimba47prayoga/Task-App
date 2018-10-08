@@ -4,7 +4,7 @@ from rest_framework import serializers
 from .models import Task
 
 
-class AssigneeSerializer(serializers.ModelSerializer):
+class SimpleUserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
 
     def get_avatar(self, obj):
@@ -18,7 +18,16 @@ class AssigneeSerializer(serializers.ModelSerializer):
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    assignee = AssigneeSerializer()
+    assignee = SimpleUserSerializer(allow_null=True)
+    created_by = SimpleUserSerializer(allow_null=True, required=False)
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        data = validated_data.copy()
+        data.update({
+            'created_by': request.user
+        })
+        return super(TaskSerializer, self).create(data)
 
     class Meta:
         model = Task

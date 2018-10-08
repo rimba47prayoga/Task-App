@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib.auth.models import User
 from rest_framework import generics
 from rest_framework import viewsets
@@ -5,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import Task
-from .serializers import TaskSerializer, AssigneeSerializer
+from .serializers import TaskSerializer, SimpleUserSerializer
 
 
 class TaskViewSet(generics.ListAPIView,
@@ -18,7 +20,7 @@ class TaskViewSet(generics.ListAPIView,
 
     def get_serializer_class(self):
         if self.action == 'assignee_task':
-            return AssigneeSerializer
+            return SimpleUserSerializer
         return super(TaskViewSet, self).get_serializer_class()
 
     def list(self, request, *args, **kwargs):
@@ -38,3 +40,10 @@ class TaskViewSet(generics.ListAPIView,
         queryset = User.objects.all()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(methods=['get'], detail=False)
+    def generate_branch(self, request):
+        result = OrderedDict([
+            ('branch', Task.generate_branch())
+        ])
+        return Response(result)

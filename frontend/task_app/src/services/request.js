@@ -11,7 +11,7 @@ export default {
     return axios.get(url)
   },
   post (url, data) {
-    axios.post()
+    return axios.post(url, data)
   },
   redirect (to) {
     return window.location.href = to;

@@ -18,7 +18,7 @@
         Create Task
       </v-card-title>
       <v-container grid-list-sm class="pa-4">
-        <v-form ref="formCreateTask">
+        <v-form ref="formCreateTask" @submit.prevent="submitForm">
           <v-layout row wrap>
 
             <!-- Title -->
@@ -268,7 +268,11 @@
                   slot-scope="{ item, selected }"
                 >
                   <!-- TODO: display status user : check if user is assigneeble (not bussy) -->
-                  <v-icon class="mr-2" v-if="item.avatar == null">account_circle</v-icon>
+                  <v-icon
+                  v-if="item.avatar == null"
+                  class="mr-2"
+                  style="color: #1565c0 !important"
+                  >account_circle</v-icon>
                   {{ item.username }}
                 </template>
 
@@ -277,7 +281,10 @@
                   slot="item"
                   slot-scope="{ item, tile }"
                 >
-                  <v-icon class="mr-2" v-if="item.avatar == null">account_circle</v-icon>
+                  <v-icon
+                  v-if="item.avatar == null"
+                  class="mr-2"
+                  style="color:#1565c0 !important">account_circle</v-icon>
                   <v-list-tile-content>
                     <v-list-tile-title v-text="item.username"></v-list-tile-title>
                   </v-list-tile-content>
@@ -291,6 +298,7 @@
             <!-- Label -->
             <v-flex xs10>
               <v-text-field
+              v-model="label"
               type="text"
               prepend-icon="label"
               label="Label"
@@ -300,6 +308,7 @@
             <!-- Descriptions -->
             <v-flex xs12>
               <v-textarea
+                v-model="descriptions"
                 :auto-grow="true"
                 row-height="14"
                 name="input-7-4"
@@ -308,13 +317,15 @@
               ></v-textarea>
             </v-flex>
           </v-layout>
+          <input style="display:none;" type="submit" ref="submitButton" />
         </v-form>
       </v-container>
-      <v-card-actions>
+      <v-divider></v-divider>
+      <v-card-actions class="pa-3">
         <v-btn flat color="primary">More</v-btn>
         <v-spacer></v-spacer>
-        <v-btn flat color="primary" @click="closeDialogCreateTask()">Cancel</v-btn>
-        <v-btn flat @click="dialog = false">Save</v-btn>
+        <v-btn flat color="primary" @click="closeDialogCreateTask">Cancel</v-btn>
+        <v-btn flat @click="$refs.submitButton.click()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -397,7 +408,9 @@ export default {
       isLoadingAssignee: false,
       assignee_task: null,
       assignee_items: [],
-      search_assignee: null
+      search_assignee: null,
+      label: '',
+      descriptions: ''
     }
   },
   methods: {
@@ -409,7 +422,7 @@ export default {
       this.clearForm();
     },
     changeTaskType(value){
-      if (value.type == TaskType.SUB_TASK){
+      if (typeof value != "undefined" && value.type == TaskType.SUB_TASK){
         this.typeIsSubTask = true;
         this.parent_task = null;
         this.parent_task_items = [];
@@ -419,6 +432,35 @@ export default {
     },
     clearForm(){
       this.$refs.formCreateTask.reset();
+    },
+    triggerDialogShow(show){
+      // TODO: or won't do: change vuex storage to component storage
+      if(show){
+        request.get(apiUrl() + 'task/generate_branch')
+        .then(response => {
+          this.branch = response.data.branch;
+        })
+      }
+    },
+    submitForm(){
+      let payload = {
+        title: this.title,
+        prefix_branch: this.selected_prefix,
+        branch: this.branch,
+        task_type: this.selected_task_type,
+        priority: this.selected_priority,
+        assignee: this.assignee_task,
+        label: this.label,
+        descriptions: this.descriptions
+      }
+      if (this.task_type == TaskType.SUB_TASK){
+        payload.parent_task = this.parent_task;
+      }
+
+      request.post(apiUrl() + 'task/', payload)
+      .then(response => {
+        this.closeDialogCreateTask();
+      })
     }
   },
   watch: {

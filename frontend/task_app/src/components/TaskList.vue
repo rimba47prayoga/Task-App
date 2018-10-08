@@ -1,13 +1,5 @@
 <template>
-<v-progress-circular
-    v-if="isLoading"
-    :size="60"
-    :width="7"
-    color="primary"
-    indeterminate
-    class="center-content"
-  ></v-progress-circular>
-<v-container ma-0 v-else>
+<v-container ma-0>
   <v-container pa-0>
     <v-layout row wrap>
       <v-flex grey lighten-4 xs3 pa-3 v-for="progress in tasks_progress" :key="progress.type">
@@ -18,7 +10,22 @@
         </v-card>
       </v-flex>
 
-      <v-flex xs3 pa-3 v-for="progress in tasks_progress" :key="progress.display">
+      <v-flex xs12 v-if="isLoading">
+        <v-progress-circular
+          :size="60"
+          :width="7"
+          color="primary"
+          indeterminate
+          class="center-content"
+        ></v-progress-circular>
+      </v-flex>
+
+      <v-flex
+        v-else
+        v-for="progress in tasks_progress"
+        :key="progress.display"
+        xs3 pa-3
+      >
         <v-card color="grey lighten-4" class="black--text mb-2">
           <task v-for="task in filterData(progress.type)" :key="task.id" v-bind:task="task"></task>
         </v-card>
@@ -41,7 +48,7 @@
     </v-btn>
     <span>Create Task</span>
   </v-tooltip>
-    <create-task></create-task>
+    <create-task ref="dialogCreateTask"></create-task>
 </v-container>
 </template>
 
@@ -85,6 +92,10 @@ export default {
         'showDialogCreateTask',
         !this.$store.getters.isCreatingTask
       )
+      // Trigger dialog show
+      this.$refs.dialogCreateTask.triggerDialogShow(
+        true
+      );
     }
   },
   created(){
