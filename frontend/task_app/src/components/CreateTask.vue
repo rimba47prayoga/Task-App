@@ -18,7 +18,12 @@
         Create Task
       </v-card-title>
       <v-container grid-list-sm class="pa-4">
-        <v-form ref="formCreateTask" @submit.prevent="submitForm">
+        <v-form
+        v-model="valid"
+        ref="formCreateTask"
+        @submit.prevent="submitForm"
+        lazy-validation
+        >
           <v-layout row wrap>
 
             <!-- Title -->
@@ -68,7 +73,6 @@
                   item-value="type"
                   label="Task Type"
                   prepend-icon="null"
-                  return-object
                   clearable
                   @change="changeTaskType"
                 >
@@ -186,7 +190,6 @@
                 item-value="type"
                 label="Priority"
                 prepend-icon="null"
-                return-object
                 clearable
               >
                 <template slot="no-data">
@@ -247,10 +250,9 @@
                 :search-input.sync="search_assignee"
                 hide-no-data
                 item-text="username"
-                item-value="username"
+                item-value="id"
                 label="Assignee"
                 prepend-icon="null"
-                return-object
                 clearable
               >
                 <template slot="no-data">
@@ -338,11 +340,12 @@ import TaskType from "../constants/TaskType.js";
 import TaskPriority from "../constants/TaskPriority.js";
 
 import request from '../services/request.js';
-import apiUrl from '../utils/api-urls.js';
 
 export default {
   data(){
     return {
+      valid: true, // model form
+
       default_rules: [
         v => !!v || "This field is required"
       ],
@@ -436,31 +439,36 @@ export default {
     triggerDialogShow(show){
       // TODO: or won't do: change vuex storage to component storage
       if(show){
-        request.get(apiUrl() + 'task/generate_branch')
+        request.get('task/generate_branch')
         .then(response => {
           this.branch = response.data.branch;
         })
       }
     },
     submitForm(){
-      let payload = {
-        title: this.title,
-        prefix_branch: this.selected_prefix,
-        branch: this.branch,
-        task_type: this.selected_task_type,
-        priority: this.selected_priority,
-        assignee: this.assignee_task,
-        label: this.label,
-        descriptions: this.descriptions
-      }
-      if (this.task_type == TaskType.SUB_TASK){
-        payload.parent_task = this.parent_task;
-      }
+      if(this.$refs.formCreateTask.validate()){
+        let payload = {
+          title: this.title,
+          prefix_branch: this.selected_prefix,
+          branch: this.branch,
+          task_type: this.selected_task_type,
+          priority: this.selected_priority,
+          assignee: this.assignee_task,
+          label: this.label,
+          descriptions: this.descriptions
+        }
+        if (this.task_type == TaskType.SUB_TASK){
+          payload.parent_task = this.parent_task;
+        }
 
-      request.post(apiUrl() + 'task/', payload)
-      .then(response => {
-        this.closeDialogCreateTask();
-      })
+        request.post('task/', payload)
+        .then(response => {
+          debugger;
+          this.closeDialogCreateTask();
+        }).catch(err => {
+          console.log(err);
+        })
+      }
     }
   },
   watch: {
@@ -468,7 +476,7 @@ export default {
       if (this.parent_task_items.length) return;
       if (this.isLoadingParentTask) return;
       this.isLoadingParentTask = true;
-      request.get(apiUrl() + 'task/parent_task')
+      request.get('task/parent_task')
       .then(response => {
         this.parent_task_items = response.data;
       })
@@ -479,7 +487,7 @@ export default {
     search_assignee(val){
       if (this.assignee_items.length || this.isLoadingAssignee) return;
       this.isLoadingAssignee = true;
-      request.get(apiUrl() + 'task/assignee_task')
+      request.get('task/assignee_task')
       .then(response => {
         this.assignee_items = response.data;
       })

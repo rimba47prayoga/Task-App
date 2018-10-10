@@ -156,9 +156,11 @@ REST_FRAMEWORK = {
     )
 }
 
+__HEADER_PREFIX = 'VGFza0FwcCBFbCBQc3kgQ29uZ3Jvbw=='
+
 JWT_AUTH = {
     'JWT_VERIFY_EXPIRATION': True,
-    'JWT_AUTH_HEADER_PREFIX': 'TaskApp',
+    'JWT_AUTH_HEADER_PREFIX': __HEADER_PREFIX,
     'JWT_EXPIRATION_DELTA': timedelta(hours=1),
     'JWT_ALLOW_REFRESH': True,
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(hours=1)

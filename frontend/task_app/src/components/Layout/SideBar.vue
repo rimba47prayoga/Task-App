@@ -10,11 +10,15 @@
     <v-list class="pt-2 mb-1">
       <v-list-tile avatar>
         <v-list-tile-avatar>
-          <img src="https://randomuser.me/api/portraits/men/85.jpg">
+          <!-- <img
+          v-if="$store.getters.user.picture != null"
+          :src="$store.getters.user.picture"
+          > -->
+          <v-icon>account_circle</v-icon>
         </v-list-tile-avatar>
 
         <v-list-tile-content>
-          <v-list-tile-title>John Leider</v-list-tile-title>
+          <v-list-tile-title>Username</v-list-tile-title>
         </v-list-tile-content>
       </v-list-tile>
     </v-list>

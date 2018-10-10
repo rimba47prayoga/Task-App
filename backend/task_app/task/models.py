@@ -16,7 +16,7 @@ class Task(BaseModel):
     label = models.CharField(max_length=255, null=True, blank=True)
     priority = models.IntegerField(choices=TaskChoices.PRIORITY_CHOICES)
     prefix_branch = models.CharField(max_length=10)
-    branch = models.IntegerField(unique=True)
+    branch = models.CharField(max_length=10, unique=True)
     assignee = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -36,7 +36,7 @@ class Task(BaseModel):
         blank=True
     )
     
-    descriptions = models.TextField()
+    descriptions = models.TextField(null=True, blank=True)
     
     objects = TaskManager()
 
@@ -47,5 +47,5 @@ class Task(BaseModel):
     def generate_branch(cls):
         last_branch = cls.objects.only('branch').last()
         if not last_branch:
-            return 1
-        return last_branch + 1
+            return str(1).zfill(4)
+        return str(int(last_branch.branch) + 1).zfill(4)

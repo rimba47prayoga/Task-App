@@ -24,7 +24,7 @@
             </v-tooltip>
             <!-- TODO: handle it if user has avatar image -->
 
-            <div class="grey--text">{{ task.branch }}</div>
+            <div class="grey--text">{{ task.prefix_branch + '-' + task.branch }}</div>
           </v-card-actions>
         </v-card>
       </v-flex>

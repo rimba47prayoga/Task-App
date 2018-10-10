@@ -64,7 +64,6 @@ import TaskPriority from "../constants/TaskPriority.js";
 
 // services & utils
 import request from "../services/request.js";
-import apiUrl from "../utils/api-urls.js";
 
 export default {
   components: {
@@ -100,7 +99,7 @@ export default {
   },
   created(){
     this.isLoading = true;
-    request.get(apiUrl() + 'task/')
+    request.get('task/')
     .then(response => {
       this.tasks = response.data;
       this.isLoading = false;

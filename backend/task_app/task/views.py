@@ -2,12 +2,15 @@ from collections import OrderedDict
 
 from django.contrib.auth.models import User
 from rest_framework import generics
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import Task
-from .serializers import TaskSerializer, SimpleUserSerializer
+from .serializers import (
+    TaskSerializer, SimpleUserSerializer, CreateTaskSerializer
+)
 
 
 class TaskViewSet(generics.ListAPIView,
@@ -21,12 +24,21 @@ class TaskViewSet(generics.ListAPIView,
     def get_serializer_class(self):
         if self.action == 'assignee_task':
             return SimpleUserSerializer
+        elif self.action == 'create':
+            return CreateTaskSerializer
         return super(TaskViewSet, self).get_serializer_class()
 
     def list(self, request, *args, **kwargs):
         import time
         time.sleep(3)
         return super(TaskViewSet, self).list(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], detail=False)
     def parent_task(self, request):

@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
 import TaskList from '@/components/TaskList'
 import Login from '@/components/User/Login'
+import { store } from '../store/store';
 
 Vue.use(Router)
 
@@ -32,11 +33,11 @@ let router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requireAuth)) {
-    if (localStorage.getItem('token') == null){
+    if (!store.getters.isLoggedIn){
       next({
         path: '/login',
-        params: {
-          nextUrl: to.fullPath
+        query: {
+          next: to.fullPath
         }
       })
     } else {
