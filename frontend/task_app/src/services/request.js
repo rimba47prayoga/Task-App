@@ -1,5 +1,7 @@
 import axios from 'axios';
+import router from '../router/index';
 import { apiUrl, getAuthHeader } from '../utils/api-utils';
+import AuthService from './auth-service';
 
 require('promise.prototype.finally').shim();
 
@@ -14,9 +16,11 @@ axios.interceptors.response.use(response => response, err => {
   const error = err.response;
   if (error.status === 401 && error.config && !error.config.__isRetryRequest) {
     // request for a new token
-    localStorage.clear()
+    AuthService.logout();
+    router.push('/logout');
+  } else {
+    return Promise.reject(err); // stop next action/ return error
   }
-  return Promise.reject(err);
 });
 
 export default {

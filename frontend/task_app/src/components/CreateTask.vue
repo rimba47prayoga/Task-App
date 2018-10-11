@@ -21,7 +21,7 @@
         <v-form
         v-model="valid"
         ref="formCreateTask"
-        @submit.prevent="submitForm"
+        @submit.prevent.stop="submitForm($event)"
         lazy-validation
         >
           <v-layout row wrap>
@@ -434,7 +434,10 @@ export default {
       }
     },
     clearForm(){
-      this.$refs.formCreateTask.reset();
+      this.title = '';
+      this.assignee_task = '';
+      this.label = '';
+      this.descriptions = '';
     },
     triggerDialogShow(show){
       // TODO: or won't do: change vuex storage to component storage
@@ -445,8 +448,11 @@ export default {
         })
       }
     },
-    submitForm(){
+    submitForm(event){
       if(this.$refs.formCreateTask.validate()){
+        if (event.explicitOriginalTarget.type != 'button'){
+          return false;
+        }
         let payload = {
           title: this.title,
           prefix_branch: this.selected_prefix,
@@ -463,8 +469,8 @@ export default {
 
         request.post('task/', payload)
         .then(response => {
-          debugger;
           this.closeDialogCreateTask();
+          this.$emit('created-task');
         }).catch(err => {
           console.log(err);
         })

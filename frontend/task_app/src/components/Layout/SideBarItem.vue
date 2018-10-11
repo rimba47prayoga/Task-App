@@ -61,12 +61,15 @@
 </template>
 
 <script>
-import request from "../../services/request.js";
-
 export default {
   data(){
     return {
       items: [
+      {
+        icon: "dashboard",
+        text: "Dashboard",
+        link: "/"
+      },
       {
         icon: "library_books",
         text: "Tasks",
@@ -107,7 +110,7 @@ export default {
   },
   methods: {
     redirect(to){
-      return request.redirect(to)
+      return this.$router.push(to);
     }
   }
 }

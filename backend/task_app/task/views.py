@@ -30,7 +30,7 @@ class TaskViewSet(generics.ListAPIView,
 
     def list(self, request, *args, **kwargs):
         import time
-        time.sleep(3)
+        time.sleep(1)
         return super(TaskViewSet, self).list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -44,7 +44,7 @@ class TaskViewSet(generics.ListAPIView,
     def parent_task(self, request):
         queryset = self.queryset.values('id', 'title', 'branch')
         import time
-        time.sleep(3)
+        time.sleep(1)
         return Response(queryset)
 
     @action(methods=['get'], detail=False)

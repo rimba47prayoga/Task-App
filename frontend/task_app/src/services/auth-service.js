@@ -1,5 +1,6 @@
 import VueCookies from 'vue-cookies';
 
+import { store } from '../store/store';
 import request from './request';
 import CryptoService from './crypto-service';
 
@@ -9,6 +10,10 @@ export default {
       username: username,
       password: password
     });
+  },
+  logout () {
+    VueCookies.set('__isLn', '0');
+    store.dispatch('logout');
   },
   setToken(token_ori) {
     let salt = token_ori.substring(0, 10);

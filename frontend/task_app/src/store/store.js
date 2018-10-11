@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import VueCookies from 'vue-cookies';
 
+import router from '../router/index';
 import AuthService from '../services/auth-service';
 
 Vue.use(Vuex);
@@ -12,8 +13,8 @@ export const store = new Vuex.Store({
     isCreatingTask: false,
 
     // user handler
-    token: '',
-    user: '',
+    token: localStorage.getItem('token') || '',
+    user: JSON.parse(localStorage.getItem('user')) || {},
     isLoggedIn: VueCookies.get('__isLn') == "1"
   },
   mutations: {
@@ -25,9 +26,13 @@ export const store = new Vuex.Store({
     },
 
     // user handler
-    auth_success(state, token, user) {
+    auth_success (state, token, user) {
       state.token = token;
       state.user = user;
+      state.isLoggedIn = true;
+    },
+    logout (state) {
+      state.isLoggedIn = false;
     }
   },
   actions: {
@@ -46,10 +51,15 @@ export const store = new Vuex.Store({
           localStorage.setItem('user', JSON.stringify(response.user));
           AuthService.setToken(response.token);
           commit('auth_success', response.token, response.user);
+          router.push(localStorage.getItem('nextUrl'));
         })
         .catch(err => {
           console.log(err);
         });
+    },
+
+    logout ({ commit }) {
+      commit('logout');
     }
   },
   getters: {

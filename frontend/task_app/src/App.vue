@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <v-app id="inspire" v-if="$store.getters.isLoggedIn">
+    <v-app id="inspire" v-if="$store.getters.isLoggedIn" class="">
       <side-bar></side-bar>
       <nav-bar></nav-bar>
       <v-content>
@@ -33,5 +33,8 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+}
+.theme--light.application{
+  background: #ffffff;
 }
 </style>

@@ -10,15 +10,15 @@
     <v-list class="pt-2 mb-1">
       <v-list-tile avatar>
         <v-list-tile-avatar>
-          <!-- <img
-          v-if="$store.getters.user.picture != null"
-          :src="$store.getters.user.picture"
-          > -->
-          <v-icon>account_circle</v-icon>
+          <img
+          v-if="user.picture != null"
+          :src="user.picture"
+          >
+          <v-icon v-else>account_circle</v-icon>
         </v-list-tile-avatar>
 
         <v-list-tile-content>
-          <v-list-tile-title>Username</v-list-tile-title>
+          <v-list-tile-title>{{ user.username }}</v-list-tile-title>
         </v-list-tile-content>
       </v-list-tile>
     </v-list>
@@ -37,12 +37,27 @@ export default {
     SideBarItem
   },
   data: () => ({
-    mini_variant: document.body.offsetWidth <= 1200
+    mini_variant: document.body.offsetWidth <= 1200,
   }),
   computed: {
     ...mapState([
       'sidebar'
-    ])
+    ]),
+    user(){
+      let user = this.$store.getters.user;
+      var picture;
+      if (user.profile == null){
+        picture = null;
+      } else {
+        if(user.profile.picture != 'undefined') {
+          picture = user.profile.picture;
+        } else {
+          picture = null;
+        }
+      }
+      user.picture = picture;
+      return user;
+    }
   }
 }
 </script>

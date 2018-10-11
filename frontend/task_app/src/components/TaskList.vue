@@ -9,7 +9,9 @@
           </v-card-actions>
         </v-card>
       </v-flex>
-
+    </v-layout>
+    <v-layout row wrap>
+      <!-- Loading component -->
       <v-flex xs12 v-if="isLoading">
         <v-progress-circular
           :size="60"
@@ -22,11 +24,14 @@
 
       <v-flex
         v-else
-        v-for="progress in tasks_progress"
-        :key="progress.display"
         xs3 pa-3
+        class="grey lighten-4"
       >
-        <v-card color="grey lighten-4" class="black--text mb-2">
+        <v-card
+          v-for="progress in tasks_progress"
+          :key="progress.display"
+          class="black--text mb-2"
+          >
           <task v-for="task in filterData(progress.type)" :key="task.id" v-bind:task="task"></task>
         </v-card>
       </v-flex>
@@ -48,7 +53,7 @@
     </v-btn>
     <span>Create Task</span>
   </v-tooltip>
-    <create-task ref="dialogCreateTask"></create-task>
+    <create-task ref="dialogCreateTask" v-on:created-task="reloadTask()"></create-task>
 </v-container>
 </template>
 
@@ -95,15 +100,18 @@ export default {
       this.$refs.dialogCreateTask.triggerDialogShow(
         true
       );
+    },
+    reloadTask(){
+      this.isLoading = true;
+      request.get('task/')
+      .then(response => {
+        this.tasks = response.data;
+        this.isLoading = false;
+      });
     }
   },
   created(){
-    this.isLoading = true;
-    request.get('task/')
-    .then(response => {
-      this.tasks = response.data;
-      this.isLoading = false;
-    })
+    this.reloadTask();
   }
 };
 </script>
