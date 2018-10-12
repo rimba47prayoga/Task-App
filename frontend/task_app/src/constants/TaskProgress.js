@@ -5,24 +5,28 @@ export default {
   TEST: 3,
   DONE: 4,
 
-  getProgressDisplay () {
+  getProgressDisplay() {
     return [
       {
-        display: "TO DO",
+        display: 'TO DO',
         type: this.TODO
       },
       {
-        display: "IN PROGRESS",
+        display: 'IN PROGRESS',
         type: this.IN_PROGRESS
       },
       {
-        display: "IN REPOSITORY",
+        display: 'IN REPOSITORY',
         type: this.IN_REPO
       },
       {
-        display: "TEST",
+        display: 'TEST',
         type: this.TEST
+      },
+      {
+        display: 'DONE',
+        type: this.DONE
       }
-    ]
+    ];
   }
 };

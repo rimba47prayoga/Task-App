@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <v-app id="inspire" v-if="$store.getters.isLoggedIn" class="">
+    <v-app id="inspire" v-if="$store.getters.isLoggedIn">
       <side-bar></side-bar>
       <nav-bar></nav-bar>
       <v-content>

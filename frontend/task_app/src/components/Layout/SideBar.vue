@@ -4,7 +4,7 @@
     :value="sidebar"
     fixed
     app
-    :mini-variant.sync="mini_variant"
+    :mini-variant="mini_variant"
     stateless
   >
     <v-list class="pt-2 mb-1">
@@ -23,7 +23,11 @@
       </v-list-tile>
     </v-list>
     <v-divider class="mb-3"></v-divider>
-    <side-bar-item></side-bar-item>
+    <side-bar-item
+      v-bind:mini_variant="mini_variant"
+      v-on:set-mini-variant="mini_variant = true"
+      v-on:unset-mini-variant="mini_variant = false"
+    ></side-bar-item>
   </v-navigation-drawer>
 </template>
 
@@ -37,7 +41,7 @@ export default {
     SideBarItem
   },
   data: () => ({
-    mini_variant: document.body.offsetWidth <= 1200,
+    mini_variant: true,
   }),
   computed: {
     ...mapState([

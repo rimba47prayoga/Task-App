@@ -1,7 +1,7 @@
 <template>
-    <v-layout row wrap mb-2>
+    <v-layout row wrap mb-3>
       <v-flex>
-        <v-card>
+        <v-card class="white-card">
           <v-card-title class="primary-title pa-2">
             <div class="subheading font-weight-normal">{{ task.title }}</div>
           </v-card-title>
@@ -107,5 +107,12 @@ export default {
 }
 .sub-task, .theme--light.sub-task {
   color:#64B5F6;
+}
+.white-card.v-card.theme--light {
+  background: #ffffff !important;
+  box-shadow: 0px 1px 2px 0px rgba(9, 30, 66, 0.25);
+}
+.v-card {
+  border-radius: 3px;
 }
 </style>
