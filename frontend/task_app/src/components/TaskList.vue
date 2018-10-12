@@ -1,13 +1,13 @@
 <template>
 <v-container ma-0 style="max-width: unset;">
   <v-container pa-0 style="max-width: unset;">
-    <v-layout align-start justify-start row fill-height>
-      <v-flex grey lighten-4 w-19 m-5px pa-2 br-3px v-for="progress in tasks_progress" :key="progress.type">
-        <v-card color="grey lighten-4" class="black--text mb-2">
-          <v-card-actions>
-            {{ progress.display }}
-          </v-card-actions>
-        </v-card>
+    <v-layout class="align-start justify-start row fill-height progress-display pb-4">
+      <v-flex
+        class="white-grey-blue w-19 m-5px pa-2 br-3px"
+        v-for="progress in tasks_progress"
+        :key="progress.type"
+      >
+        {{ progress.display }}
       </v-flex>
     </v-layout>
     <v-layout align-content-space-between justify-start row fill-height>
@@ -24,16 +24,24 @@
 
       <v-flex
         v-else
-        v-for="progress in tasks_progress"
-        :key="progress.display"
+        v-for="(obj, key) in tasks"
+        :key="key"
         w-19 m-5px pa-2 no-box-shadow br-3px
-        class="grey lighten-4"
+        class="white-grey-blue"
+      >
+      <draggable
+        element="div"
+        v-model="tasks[key]"
+        :options="dragOptions"
+        class="drag-area"
       >
         <v-card
+          v-for="task in tasks[key]" :key="task.id"
           class="black--text mb-2 bg-none"
           >
-          <task v-for="task in filterData(progress.type)" :key="task.id" v-bind:task="task"></task>
+          <task v-bind:task="task"></task>
         </v-card>
+      </draggable>
       </v-flex>
     </v-layout>
   </v-container>
@@ -59,6 +67,7 @@
 
 <script>
 // components
+import draggable from 'vuedraggable';
 import Task from "./Task";
 import CreateTask from "./CreateTask";
 
@@ -73,12 +82,19 @@ import request from "../services/request.js";
 export default {
   components: {
     Task,
-    CreateTask
+    CreateTask,
+    draggable
   },
   data: () => {
     return {
       isLoading: false,
-      tasks: [],
+      tasks: {
+        todo: [],
+        in_progress: [],
+        in_repo: [],
+        test: [],
+        done: []
+      },
       tasks_progress: TaskProgress.getProgressDisplay()
     };
   },
@@ -105,8 +121,50 @@ export default {
       this.isLoading = true;
       request.get('task/')
       .then(response => {
-        this.tasks = response.data;
+        let data = response.data;
+        if (!data.length) {
+          return;
+        }
+        data.map((obj, index) => {
+          if (obj.progress == TaskProgress.TODO){
+            this.tasks.todo.push(obj);
+          } else if (obj.progress == TaskProgress.IN_PROGRESS){
+            this.tasks.in_progress.push(obj);
+          } else if(obj.progress == TaskProgress.IN_REPO){
+            this.tasks.in_repo.push(obj);
+          } else if (obj.progress == TaskProgress.TEST){
+            this.tasks.test.push(obj);
+          } else {
+            this.tasks.done.push(obj);
+          }
+        })
         this.isLoading = false;
+      });
+    },
+    onMove({ relatedContext, draggedContext }) {
+      const relatedElement = relatedContext.element;
+      const draggedElement = draggedContext.element;
+      return true;
+    }
+  },
+  computed: {
+    dragOptions(){
+      return {
+        animation: 0,
+        group: "task_progress_group",
+        disabled: false,
+        ghostClass: "ghost"
+      };
+    }
+  },
+  watch: {
+    isDragging(newValue) {
+      if (newValue) {
+        this.delayedDragging = true;
+        return;
+      }
+      this.$nextTick(() => {
+        this.delayedDragging = false;
       });
     }
   },
@@ -145,5 +203,18 @@ export default {
 }
 .bg-none.v-card.theme--light {
   background: none;
+}
+.white-grey-blue {
+  background: #F4F5F7 !important;
+}
+.progress-display {
+  position: sticky;
+  top: 65px;
+  z-index: 2;
+  background: #fff;
+}
+.drag-area {
+  min-width: 50px;
+  min-height: 100%;
 }
 </style>

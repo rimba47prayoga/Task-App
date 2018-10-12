@@ -1,32 +1,40 @@
 <template>
-    <v-layout row wrap mb-3>
+    <v-layout row wrap mb-6px>
       <v-flex>
-        <v-card class="white-card">
-          <v-card-title class="primary-title pa-2">
-            <div class="subheading font-weight-normal">{{ task.title }}</div>
-          </v-card-title>
-          <v-card-actions>
-            <v-icon v-bind:class="class_task_type">{{ getTaskTypeIcon() }}</v-icon>
-            <v-icon v-bind:class="class_priority">{{ getTaskPriorityIcon() }}</v-icon>
-          </v-card-actions>
-          <v-card-actions>
-            <v-tooltip
-            v-if="task.assignee != null"
-            bottom
-            >
-              <v-icon
-              v-if="task.assignee.avatar == null"
-              class="task-user-icon mr-2"
-              slot="activator"
-              >account_circle
-              </v-icon>
-              <span>{{ task.assignee.username }}</span>
+        <v-hover>
+          <v-card
+            slot-scope="{ hover }"
+            :class="`white-${hover ? 'card-hover' : 'card'}`"
+          >
+            <v-tooltip right open-delay="800">
+              <v-card-title class="primary-title pa-2" slot="activator">
+                <div class="subheading font-weight-normal">{{ task.title }}</div>
+              </v-card-title>
+              <span>{{ task.title }}</span>
             </v-tooltip>
-            <!-- TODO: handle it if user has avatar image -->
+            <v-card-actions class="pa-0 pl-2 pr-2">
+              <v-icon v-bind:class="class_task_type">{{ getTaskTypeIcon() }}</v-icon>
+              <v-icon v-bind:class="class_priority">{{ getTaskPriorityIcon() }}</v-icon>
+            </v-card-actions>
+            <v-card-actions class="pa-0 pl-2 pr-2 pt-2">
+              <v-tooltip
+              v-if="task.assignee != null"
+              bottom
+              >
+                <v-icon
+                v-if="task.assignee.avatar == null"
+                class="task-user-icon mr-2"
+                slot="activator"
+                >account_circle
+                </v-icon>
+                <span>{{ task.assignee.username }}</span>
+              </v-tooltip>
+              <!-- TODO: handle it if user has avatar image -->
 
-            <div class="grey--text">{{ task.prefix_branch + '-' + task.branch }}</div>
-          </v-card-actions>
-        </v-card>
+              <div class="grey--text">{{ task.prefix_branch + '-' + task.branch }}</div>
+            </v-card-actions>
+          </v-card>
+        </v-hover>
       </v-flex>
     </v-layout>
 </template>
@@ -93,14 +101,14 @@ export default {
   font-weight: normal;
 }
 .task-user-icon, .theme--light.task-user-icon{
-  font-size: 32px;
+  font-size: 30px;
   color:#1565c0 !important
 }
 .task-type-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 .task-priority-icon{
-  font-size: 23px;
+  font-size: 18px;
 }
 .priority-medium, .theme--light.priority-medium{
   color: #FB8C00;
@@ -114,5 +122,15 @@ export default {
 }
 .v-card {
   border-radius: 3px;
+}
+.mb-6px {
+  margin-bottom: 6px !important;
+}
+
+.v-card.theme--light.white-card-hover {
+  /*  rgba(54, 71, 102, 0.14)*/
+  cursor:move;
+  transition: background-color 140ms ease-in-out, border-color 75ms ease-in-out;
+  background: #F4F5F7 !important;
 }
 </style>
