@@ -1,5 +1,23 @@
 <template>
 <v-container ma-0 style="max-width: unset;">
+  <v-snackbar
+    v-model="showUndo"
+    :multi-line="true"
+    :right="true"
+    :timeout="6000"
+    :top="true"
+    color="white"
+    class="black--text"
+    >
+      Task has changed.
+      <v-btn
+        color="blue"
+        flat
+        @click="snackbar = false"
+      >
+        Undo
+      </v-btn>
+    </v-snackbar>
   <v-container pa-0 style="max-width: unset;">
     <v-layout class="align-start justify-start row fill-height progress-display pb-4">
       <v-flex
@@ -27,18 +45,29 @@
         v-for="(obj, key) in tasks"
         :key="key"
         w-19 m-5px pa-2 no-box-shadow br-3px
-        class="white-grey-blue"
+        class="white-grey-blue relative"
       >
+      <div
+        :id="'blur_task_' + key"
+        style="display:none;"
+        class="blur-task"
+      ></div>
       <draggable
         element="div"
-        v-model="tasks[key]"
-        :options="dragOptions"
         class="drag-area"
+        v-model="tasks[key]"
+        @choose="chooseTask"
+        @start="start"
+        @end="end"
+        :move="move"
+        :options="dragOptions"
+        :data-progress="key"
       >
         <v-card
           v-for="task in tasks[key]" :key="task.id"
           class="black--text mb-2 bg-none"
-          >
+          :data-taskid="task.id"
+        >
           <task v-bind:task="task"></task>
         </v-card>
       </draggable>
@@ -95,7 +124,10 @@ export default {
         test: [],
         done: []
       },
-      tasks_progress: TaskProgress.getProgressDisplay()
+      tasks_progress: TaskProgress.getProgressDisplay(),
+      isDragged: false,
+      showUndo: false,
+      latestDragged: null
     };
   },
   methods: {
@@ -141,31 +173,99 @@ export default {
         this.isLoading = false;
       });
     },
-    onMove({ relatedContext, draggedContext }) {
-      const relatedElement = relatedContext.element;
-      const draggedElement = draggedContext.element;
-      return true;
+
+    chooseTask (choose){
+      let item = choose.item;
+      let task_id = item.dataset.taskid;
+      let cards = document.querySelectorAll('.v-card.theme--light.white-card');
+      Array.prototype.forEach.call(cards, (card, index) => {
+        if (card.dataset.taskid == task_id){
+          card.style.setProperty("background-color", "#DEEBFF", "important");
+        } else {
+          card.style.setProperty("background-color", "");
+        }
+      })
+      let card = item.querySelector(`[data-taskid="${task_id}"]`);
+      card.style.setProperty("background-color", "#DEEBFF", "important");
+    },
+
+    getNextDraggingElement(from){
+      let target = from.target;
+      if (target.dataset.progress == 'todo'){
+        return {
+          blur_area: document.getElementById('blur_task_in_progress'),
+          drag_area: document.querySelector('div.drag-area[data-progress="in_progress"]')
+        }
+      } else if (target.dataset.progress == 'in_progress'){
+        return {
+          blur_area: document.getElementById('blur_task_in_repo'),
+          drag_area: document.querySelector('div.drag-area[data-progress="in_repo"]')
+        }
+      } else if (target.dataset.progress == 'in_repo') {
+        return {
+          blur_area: document.getElementById('blur_task_test'),
+          drag_area: document.querySelector('div.drag-area[data-progress="test"]')
+        }
+      } else if (target.dataset.progress == 'test') {
+        return {
+          blur_area: document.getElementById('blur_task_done'),
+          drag_area: document.querySelector('div.drag-area[data-progress="done"]')
+        }
+      } else if (target.dataset.progress == 'done') {
+        return false;
+      }
+
+      // to handle if fucking user remove attribute data-progress
+      let next_drag_container = from.target.parentElement.nextElementSibling;
+      Array.prototype.forEach.call(next_drag_container.children, function(children, index){
+        if(children.classList.contains('drag-area')){
+          return children;
+        }
+      });
+    },
+
+    removeFocusDragging(from){
+      let next_drag_element = this.getNextDraggingElement(from);
+      next_drag_element.drag_area.classList.remove('focus-next-drag');
+    },
+
+    start(from){
+      let next_drag_element = this.getNextDraggingElement(from);
+      next_drag_element.drag_area.classList.add('focus-next-drag');
+
+      let blur_tasks = document.getElementsByClassName('blur-task');
+      Array.prototype.forEach.call(blur_tasks, (element, index) => {
+        if (element.id != next_drag_element.blur_area.id){
+          element.style.display = '';
+        }
+      });
+    },
+    end(from){
+      let blur_tasks = document.getElementsByClassName('blur-task');
+      Array.prototype.forEach.call(blur_tasks, (element, index) => {
+        element.style.display = 'none';
+      });
+      this.removeFocusDragging(from);
+      if (this.isDragged){
+        setTimeout(() => {
+          this.showUndo = true;
+        }, 500);
+      }
+      this.isDragged = false;
+    },
+    move(from){
+      this.isDragged = true;
+      this.latestDragged = from.dragged.dataset.taskid;
     }
   },
   computed: {
     dragOptions(){
       return {
-        animation: 0,
-        group: "task_progress_group",
+        animation: 150,
+        group: {name: "task_progress_group"},
         disabled: false,
-        ghostClass: "ghost"
+        ghostClass: "ghost",
       };
-    }
-  },
-  watch: {
-    isDragging(newValue) {
-      if (newValue) {
-        this.delayedDragging = true;
-        return;
-      }
-      this.$nextTick(() => {
-        this.delayedDragging = false;
-      });
     }
   },
   created(){
@@ -188,6 +288,7 @@ export default {
   -ms-flex-positive: 0;
   flex-grow: 0;
   max-width: 19%;
+  width: 19%;
 }
 .flex.m-5px {
   margin: 5px;
@@ -203,18 +304,40 @@ export default {
 }
 .bg-none.v-card.theme--light {
   background: none;
+  box-shadow: none !important;
 }
 .white-grey-blue {
   background: #F4F5F7 !important;
 }
+.relative {
+  position: relative;
+}
 .progress-display {
   position: sticky;
   top: 65px;
-  z-index: 2;
+  z-index: 100;
   background: #fff;
 }
 .drag-area {
   min-width: 50px;
   min-height: 100%;
+}
+.focus-next-drag {
+  border: 2px dashed #1565c0 !important;
+  border-radius: 3px;
+  background: #b3d4fc !important;
+}
+.blur-task {
+  width:100%;
+  height:100%;
+  background:rgb(244, 245, 247, 0.7) none repeat scroll 0% 0%;
+  z-index:2;
+  position:absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.v-card.theme--light.white-card.task-choosed {
+  background: #DEEBFF !important;
 }
 </style>

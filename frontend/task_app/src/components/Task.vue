@@ -5,6 +5,7 @@
           <v-card
             slot-scope="{ hover }"
             :class="`white-${hover ? 'card-hover' : 'card'}`"
+            :data-taskid="task.id"
           >
             <v-tooltip right open-delay="800">
               <v-card-title class="primary-title pa-2" slot="activator">
