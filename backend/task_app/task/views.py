@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from rest_framework import generics
@@ -7,9 +8,11 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from core.exceptions import TaskAppError
 from .models import Task
 from .serializers import (
-    TaskSerializer, SimpleUserSerializer, CreateTaskSerializer
+    TaskSerializer, SimpleUserSerializer, CreateTaskSerializer,
+    UpdateProgressSerializer
 )
 
 
@@ -26,6 +29,8 @@ class TaskViewSet(generics.ListAPIView,
             return SimpleUserSerializer
         elif self.action == 'create':
             return CreateTaskSerializer
+        elif self.action == 'update_progress':
+            return UpdateProgressSerializer
         return super(TaskViewSet, self).get_serializer_class()
 
     def list(self, request, *args, **kwargs):
@@ -42,7 +47,7 @@ class TaskViewSet(generics.ListAPIView,
 
     @action(methods=['get'], detail=False)
     def parent_task(self, request):
-        queryset = self.queryset.values('id', 'title', 'branch')
+        queryset = self.queryset.values('id', 'title', 'prefix_branch', 'branch')
         import time
         time.sleep(1)
         return Response(queryset)
@@ -59,3 +64,29 @@ class TaskViewSet(generics.ListAPIView,
             ('branch', Task.generate_branch())
         ])
         return Response(result)
+
+    @action(methods=['put'], detail=True)
+    def update_progress(self, request, pk=None):
+        instance = self.get_object()
+        data = request.data.copy()
+        data.update({
+            'old_progress': instance.progress
+        })
+        serializer = self.get_serializer(data=data)
+        if serializer.is_valid():
+            instance.progress = serializer.data.get('new_progress')
+            instance.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['post'], detail=True)
+    def undo_progress(self, request, pk=None):
+        instance = self.get_object()
+        if (datetime.now() - instance.modified_date).seconds > 60:
+            raise TaskAppError(
+                message='Undo time has expire',
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        instance.progress -= 1
+        instance.save()
+        return Response({'progress': instance.progress})

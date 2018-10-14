@@ -1,8 +1,5 @@
 <template>
-  <!-- TODO: fix it: when dialog close from click outside, :value="isCreatingTask"
-  in vuex not changed -->
 
-  <!-- Label, Assignee, Priority -->
   <v-dialog
   :value="isCreatingTask"
   :persistent="true"
@@ -154,7 +151,7 @@
                     class="white--text"
                   >
                     <v-icon left>mdi-coin</v-icon>
-                    <span v-text="item.branch"></span>
+                    <span v-text="item.prefix_branch + '-' + item.branch"></span>
                   </v-chip>
                   {{ item.title }}
                 </template>
@@ -166,7 +163,7 @@
                     color="blue-grey"
                     class="white--text"
                   >
-                    <span v-text="item.branch"></span>
+                    <span v-text="item.prefix_branch + '-' + item.branch"></span>
                   </v-chip>
                   <v-list-tile-content>
                     <v-list-tile-title v-text="item.title"></v-list-tile-title>
@@ -425,7 +422,7 @@ export default {
       this.clearForm();
     },
     changeTaskType(value){
-      if (typeof value != "undefined" && value.type == TaskType.SUB_TASK){
+      if (typeof value != "undefined" && value == TaskType.SUB_TASK){
         this.typeIsSubTask = true;
         this.parent_task = null;
         this.parent_task_items = [];

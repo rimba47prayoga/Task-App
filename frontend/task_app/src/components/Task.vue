@@ -4,7 +4,7 @@
         <v-hover>
           <v-card
             slot-scope="{ hover }"
-            :class="`white-${hover ? 'card-hover' : 'card'}`"
+            class="white-card"
             :data-taskid="task.id"
           >
             <v-tooltip right open-delay="800">
@@ -126,12 +126,5 @@ export default {
 }
 .mb-6px {
   margin-bottom: 6px !important;
-}
-
-.v-card.theme--light.white-card-hover {
-  /*  rgba(54, 71, 102, 0.14)*/
-  cursor:move;
-  transition: background-color 140ms ease-in-out, border-color 75ms ease-in-out;
-  background: #F4F5F7 !important;
 }
 </style>

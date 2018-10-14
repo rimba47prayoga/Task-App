@@ -66,3 +66,31 @@ class CreateTaskSerializer(serializers.Serializer):
             'branch', 'assignee', 'progress', 'parent', 'descriptions'
         ]
 
+
+class UpdateProgressSerializer(serializers.Serializer):
+    old_progress = serializers.ChoiceField(choices=TaskChoices.PROGRESS_CHOICES)
+    new_progress = serializers.ChoiceField(choices=TaskChoices.PROGRESS_CHOICES)
+
+    def validate(self, attrs):
+        old_progress = attrs.get('old_progress')
+        new_progress = attrs.get('new_progress')
+        if (new_progress - old_progress) > 1:
+            progress_choices = dict(TaskChoices.PROGRESS_CHOICES)
+            message = ('Please change task progress to {new_progress} before {'
+                       'next_progress}').format(
+                new_progress=progress_choices.get(new_progress).lower(),
+                next_progress=progress_choices.get(old_progress + 1).lower()
+            )
+            raise serializers.ValidationError({
+                'message': message,
+                'error_field': 'new_progress'
+            })
+        if new_progress < old_progress:
+            raise serializers.ValidationError({
+                'message': 'Cannot change task progress to step back',
+                'error_field': 'new_progress'
+            })
+        return super(UpdateProgressSerializer, self).validate(attrs)
+
+    class Meta:
+        fields = ['old_progress', 'new_progress']

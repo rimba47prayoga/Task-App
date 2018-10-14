@@ -2,22 +2,52 @@
 <v-container ma-0 style="max-width: unset;">
   <v-snackbar
     v-model="showUndo"
-    :multi-line="true"
+    :absolute="true"
+    :auto-height="true"
     :right="true"
     :timeout="6000"
     :top="true"
     color="white"
     class="black--text"
+    style="height: 53px;font-size: 15px;"
     >
-      Task has changed.
-      <v-btn
-        color="blue"
-        flat
-        @click="snackbar = false"
-      >
-        Undo
-      </v-btn>
-    </v-snackbar>
+    Task has changed.
+    <v-btn
+      color="blue"
+      flat
+      @click="undoMovedTask()"
+    >
+      Undo
+    </v-btn>
+    <v-btn
+      @click="showUndo = false"
+      flat
+      class="black--text"
+    >
+      <v-icon>clear</v-icon>
+    </v-btn>
+  </v-snackbar>
+
+  <v-snackbar
+    v-model="showError"
+    :absolute="true"
+    :auto-height="true"
+    :right="true"
+    :timeout="6000"
+    :top="true"
+    color="white"
+    class="red--text"
+    style="height: 53px;font-size: 15px;"
+    >
+    {{ error.message }}
+    <v-btn
+      @click="showUndo = false"
+      flat
+      class="black--text"
+    >
+      <v-icon>clear</v-icon>
+    </v-btn>
+  </v-snackbar>
   <v-container pa-0 style="max-width: unset;">
     <v-layout class="align-start justify-start row fill-height progress-display pb-4">
       <v-flex
@@ -49,8 +79,7 @@
       >
       <div
         :id="'blur_task_' + key"
-        style="display:none;"
-        class="blur-task"
+        class="blur-task hide"
       ></div>
       <draggable
         element="div"
@@ -59,6 +88,7 @@
         @choose="chooseTask"
         @start="start"
         @end="end"
+        @sort="sort"
         :move="move"
         :options="dragOptions"
         :data-progress="key"
@@ -125,19 +155,32 @@ export default {
         done: []
       },
       tasks_progress: TaskProgress.getProgressDisplay(),
-      isDragged: false,
+      isMoved: false,
       showUndo: false,
-      latestDragged: null
+      latestDragged:  {
+        task_id: null,
+        progress: null
+      },
+      showError: false,
+      error: {
+        message: null
+      }
     };
   },
   methods: {
     /** filter task by progress type --> TODO, IN Progress, etc ..
      * @param {number} progress
+     * @returns {Object}
      */
     filterData(progress){
       return this.tasks.filter(task => {
         return task.progress == progress;
       });
+    },
+    sortTask(progress){
+      this.tasks[progress] = this.tasks[progress].sort((one, two) => {
+        return one.id - two.id;
+      })
     },
     showDialogCreateTask(){
       this.$store.commit(
@@ -174,23 +217,107 @@ export default {
       });
     },
 
+    /** get this.task[progress] (get tasks key by progress) in component data
+     * @param {number} progress
+     */
+    getTaskByProgress(progress, return_key=false){
+      if (progress == TaskProgress.TODO){
+        if (return_key) {
+          return 'todo'
+        }
+        return this.tasks.todo;
+      } else if (progress == TaskProgress.IN_PROGRESS){
+        if (return_key) {
+          return 'in_progress'
+        }
+        return this.tasks.in_progress;
+      } else if (progress == TaskProgress.IN_REPO){
+        if (return_key) {
+          return 'in_repo'
+        }
+        return this.tasks.in_repo;
+      } else if (progress == TaskProgress.TEST){
+        if (return_key) {
+          return 'test'
+        }
+        return this.tasks.test;
+      } else if (progress == TaskProgress.DONE){
+        if (return_key) {
+          return 'done'
+        }
+        return this.tasks.done;
+      } else {
+        throw new Error('uncategorize task progress');
+      }
+    },
+
+    /** Update task progress after moved task
+     * @param {number} task_id
+     * @param {number} progress
+     */
+    updateTaskProgress(task_id, progress){
+      var tasks = this.getTaskByProgress(progress);
+
+      request.put(`task/${task_id}/update_progress`, {
+        new_progress: progress
+      })
+      .then(response => {
+        this.showUndo = true;
+        tasks.map((task, index) => {
+          if (task.id == task_id){
+            task.progress = response.data.new_progress;
+          }
+        })
+      })
+      .catch(err => {
+        let response = err.response;
+        if (response.status == 400){
+          this.showError = true;
+          this.error.message = response.data.message;
+        } else {
+          Promise.reject(err);
+        }
+      })
+    },
+
+    undoMovedTask(){
+      let task_id = Number(this.latestDragged.task_id);
+      request.post(`task/${task_id}/undo_progress`)
+      .then(response => {
+        let tasks_after_undo = this.getTaskByProgress(Number(response.data.progress)); // tasks after undo
+        let tasks_before_undo = this.getTaskByProgress(Number(this.latestDragged.progress));
+        tasks_before_undo.map((task, index) => {
+          if (task.id == task_id){
+            task.progress = response.data.progress;
+            tasks_after_undo.push(task);
+            let progress = this.getTaskByProgress(response.data.progress, true);
+            this.sortTask(progress);
+            tasks_before_undo.splice(index, 1);
+          }
+        })
+      }).finally(() => {
+        this.showUndo = false;
+      })
+    },
+
     chooseTask (choose){
       let item = choose.item;
       let task_id = item.dataset.taskid;
       let cards = document.querySelectorAll('.v-card.theme--light.white-card');
       Array.prototype.forEach.call(cards, (card, index) => {
-        if (card.dataset.taskid == task_id){
+          if (card.dataset.taskid == task_id){
           card.style.setProperty("background-color", "#DEEBFF", "important");
         } else {
           card.style.setProperty("background-color", "");
         }
       })
-      let card = item.querySelector(`[data-taskid="${task_id}"]`);
-      card.style.setProperty("background-color", "#DEEBFF", "important");
     },
 
-    getNextDraggingElement(from){
-      let target = from.target;
+    /** get next drag element by task progress
+     * @param {Object} from
+     * @returns {Object}
+     */
+    getNextDraggingElement(target){
       if (target.dataset.progress == 'todo'){
         return {
           blur_area: document.getElementById('blur_task_in_progress'),
@@ -225,37 +352,57 @@ export default {
     },
 
     removeFocusDragging(from){
-      let next_drag_element = this.getNextDraggingElement(from);
+      // remove blur effect
+      let blur_tasks = document.getElementsByClassName('blur-task');
+      Array.prototype.forEach.call(blur_tasks, (element, index) => {
+        element.classList.add('hide');
+      });
+      let next_drag_element = this.getNextDraggingElement(from.target);
+      if (!next_drag_element) return false;
       next_drag_element.drag_area.classList.remove('focus-next-drag');
+      Array.prototype.forEach.call(next_drag_element.drag_area.children, (task, index) => {
+        task.classList.remove('hide')
+      });
     },
 
     start(from){
-      let next_drag_element = this.getNextDraggingElement(from);
+      let next_drag_element = this.getNextDraggingElement(from.target);
+      if (!next_drag_element) return false;
       next_drag_element.drag_area.classList.add('focus-next-drag');
 
+      // hide task
+      Array.prototype.forEach.call(next_drag_element.drag_area.children, (task, index) => {
+        task.classList.add('hide')
+      });
+
+      // show blur effect
       let blur_tasks = document.getElementsByClassName('blur-task');
       Array.prototype.forEach.call(blur_tasks, (element, index) => {
         if (element.id != next_drag_element.blur_area.id){
-          element.style.display = '';
+          element.classList.remove('hide');
         }
       });
     },
     end(from){
-      let blur_tasks = document.getElementsByClassName('blur-task');
-      Array.prototype.forEach.call(blur_tasks, (element, index) => {
-        element.style.display = 'none';
-      });
       this.removeFocusDragging(from);
-      if (this.isDragged){
-        setTimeout(() => {
-          this.showUndo = true;
-        }, 500);
+      if (this.isMoved) {
+        this.updateTaskProgress(this.latestDragged.task_id, this.latestDragged.progress);
       }
-      this.isDragged = false;
+      this.isMoved = false;
     },
     move(from){
-      this.isDragged = true;
-      this.latestDragged = from.dragged.dataset.taskid;
+      var progress = from.draggedContext.element.progress;
+      if (progress == TaskProgress.DONE) return false;
+      let task_id = Number(from.dragged.dataset.taskid);
+      this.latestDragged = {
+        task_id: task_id,
+        progress: progress + 1
+      };
+      this.isMoved = true;
+    },
+    sort(from){
+      let progress = from.target.dataset.progress;
+      this.sortTask(progress);
     }
   },
   computed: {
@@ -314,7 +461,7 @@ export default {
 }
 .progress-display {
   position: sticky;
-  top: 65px;
+  top: 88px;
   z-index: 100;
   background: #fff;
 }
@@ -339,5 +486,14 @@ export default {
 }
 .v-card.theme--light.white-card.task-choosed {
   background: #DEEBFF !important;
+}
+
+.v-card.theme--light.white-card:hover {
+  cursor:move;
+  transition: background-color 140ms ease-in-out, border-color 75ms ease-in-out;
+  background: #F4F5F7 !important;
+}
+.hide {
+  display: none !important;
 }
 </style>

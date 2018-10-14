@@ -47,7 +47,7 @@
         </v-list-tile>
       </v-list-group>
       <v-list-tile v-else :key="item.text" @click="redirect(item.link)">
-        <v-tooltip right>
+        <v-tooltip right z-index="1000000">
           <v-list-tile-action slot="activator" class="pa-2">
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-tile-action>

@@ -1,6 +1,5 @@
-from django.db import models
+from core.managers import BaseModelManager
 
 
-class TaskManager(models.Manager):
-    def get_queryset(self):
-        return super(TaskManager, self).get_queryset().filter(is_deleted=False)
+class TaskManager(BaseModelManager):
+    pass

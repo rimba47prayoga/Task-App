@@ -4,6 +4,20 @@
       <side-bar></side-bar>
       <nav-bar></nav-bar>
       <v-content>
+        <v-layout align-content-space-between justify-start pa-3 ml-3>
+        <div style="font-size: 25px;line-height: -moz-block-height;" class="mr-2">{{ lastPath() }}</div>
+        <v-breadcrumbs :large="true" divider="-" class="pr-4 pl-4 ma-2">
+
+          <v-breadcrumbs-item
+            v-for="(item, index) in breadcrumbs"
+            :key="index"
+            :disabled="true"
+          >
+            <v-icon v-if="item.icon">{{ item.icon }}</v-icon>
+            {{ item.name }}
+          </v-breadcrumbs-item>
+        </v-breadcrumbs>
+        </v-layout>
         <router-view></router-view>
       </v-content>
     </v-app>
@@ -14,15 +28,37 @@
 <script>
 import NavBar from './components/Layout/NavBar';
 import SideBar from './components/Layout/SideBar';
-import Content from './components/Layout/Content';
 
+import { capitalize } from './utils/common.js';
 
 export default {
   name: "app",
   components: {
     NavBar,
-    SideBar,
-    Content
+    SideBar
+  },
+  methods: {
+    lastPath(){
+      return capitalize(this.$route.name)
+    }
+  },
+  computed: {
+    breadcrumbs(){
+      let route_name = this.$route.name;
+      if (route_name == null){
+        route_name = this.$router.currentRoute.name;
+      }
+      return [
+        {
+          icon: 'home',
+          name: ''
+        },
+        {
+          icon: null,
+          name: capitalize(route_name)
+        }
+      ]
+    }
   }
 };
 </script>

@@ -21,7 +21,7 @@ let router = new Router({
     },
     {
       path: '/task',
-      name: 'TaskList',
+      name: 'task',
       component: lazyLoad('TaskList'),
       meta: {
         requireAuth: true
