@@ -4,7 +4,7 @@
       <side-bar></side-bar>
       <nav-bar></nav-bar>
       <v-content>
-        <v-layout align-content-space-between justify-start pa-3 ml-3>
+        <v-layout align-content-space-between justify-start pr-3 pl-3 ml-3>
         <div style="font-size: 25px;line-height: -moz-block-height;" class="mr-2">{{ lastPath() }}</div>
         <v-breadcrumbs :large="true" divider="-" class="pr-4 pl-4 ma-2">
 
@@ -36,6 +36,11 @@ export default {
   components: {
     NavBar,
     SideBar
+  },
+  data(){
+    return {
+      baseUrl: process.env.BASE_URL
+    }
   },
   methods: {
     lastPath(){

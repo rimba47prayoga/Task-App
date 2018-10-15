@@ -287,9 +287,6 @@
                   <v-list-tile-content>
                     <v-list-tile-title v-text="item.username"></v-list-tile-title>
                   </v-list-tile-content>
-                  <v-list-tile-action>
-                    <v-icon>mdi-coin</v-icon>
-                  </v-list-tile-action>
                 </template>
               </v-autocomplete>
             </v-flex>

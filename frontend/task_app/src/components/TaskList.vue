@@ -1,5 +1,5 @@
 <template>
-<v-container ma-0 style="max-width: unset;">
+<v-container ma-0 pt-0 pb-0 style="max-width: unset;">
   <v-snackbar
     v-model="showUndo"
     :absolute="true"
@@ -11,11 +11,13 @@
     class="black--text"
     style="height: 53px;font-size: 15px;"
     >
-    Task has changed.
+    <v-icon class="primary--text mr-3">warning</v-icon>
+    Task has changed :
     <v-btn
       color="blue"
       flat
       @click="undoMovedTask()"
+      class="ma-0 mr-3"
     >
       Undo
     </v-btn>
@@ -58,68 +60,133 @@
         {{ progress.display }}
       </v-flex>
     </v-layout>
-    <v-layout align-content-space-between justify-start row fill-height>
-      <!-- Loading component -->
-      <v-flex xs12 v-if="isLoading">
-        <v-progress-circular
-          :size="60"
-          :width="7"
-          color="primary"
-          indeterminate
-          class="center-content"
-        ></v-progress-circular>
-      </v-flex>
+    <v-container
+      id="scroll-target"
+      style="max-height: 490px;max-width: 100%;"
+      class="scroll-y pa-0">
 
-      <v-flex
-        v-else
-        v-for="(obj, key) in tasks"
-        :key="key"
-        w-19 m-5px pa-2 no-box-shadow br-3px
-        class="white-grey-blue relative"
+      <v-layout
+      v-scroll:#scroll-target=""
+      align-content-space-between justify-start row fill-height scroll-y
       >
-      <div
-        :id="'blur_task_' + key"
-        class="blur-task hide"
-      ></div>
-      <draggable
-        element="div"
-        class="drag-area"
-        v-model="tasks[key]"
-        @choose="chooseTask"
-        @start="start"
-        @end="end"
-        @sort="sort"
-        :move="move"
-        :options="dragOptions"
-        :data-progress="key"
-      >
-        <v-card
-          v-for="task in tasks[key]" :key="task.id"
-          class="black--text mb-2 bg-none"
-          :data-taskid="task.id"
+        <!-- Loading component -->
+        <v-flex xs12 v-if="isLoading">
+          <v-progress-circular
+            :size="60"
+            :width="7"
+            color="primary"
+            indeterminate
+            class="center-content"
+          ></v-progress-circular>
+        </v-flex>
+
+        <v-flex
+          v-else
+          v-for="(obj, key) in tasks"
+          :key="key"
+          w-19 m-5px pa-2 no-box-shadow br-3px
+          class="white-grey-blue relative"
         >
-          <task v-bind:task="task"></task>
-        </v-card>
-      </draggable>
-      </v-flex>
-    </v-layout>
+        <div
+          :id="'blur_task_' + key"
+          class="blur-task hide"
+        ></div>
+        <draggable
+          element="div"
+          class="drag-area"
+          v-model="tasks[key]"
+          @choose="chooseTask"
+          @start="start"
+          @end="end"
+          @sort="sort"
+          :move="move"
+          :options="dragOptions"
+          :data-progress="key"
+        >
+          <v-card
+            v-for="task in tasks[key]" :key="task.id"
+            class="black--text mb-2 bg-none"
+            :data-taskid="task.id"
+          >
+            <task v-bind:task="task"></task>
+          </v-card>
+        </draggable>
+        </v-flex>
+      </v-layout>
+    </v-container>
   </v-container>
-  <v-tooltip top lazy open-delay="800">
-  <v-btn
-    fab
-    bottom
-    right
-    color="pink"
-    dark
-    fixed
-    class="pa-3"
-    @click="showDialogCreateTask()"
-    slot="activator"
+    <v-speed-dial
+      v-model="fab"
+      :top="top"
+      :bottom="bottom"
+      :right="right"
+      :left="left"
+      :direction="direction"
+      :open-on-hover="hover"
+      :transition="transition"
     >
+      <v-btn
+        slot="activator"
+        v-model="fab"
+        color="blue darken-2"
+        dark
+        fab
+      >
+        <v-icon>more_vert</v-icon>
+        <v-icon>close</v-icon>
+      </v-btn>
+      <v-tooltip left>
+      <v-btn
+        fab
+        dark
+        small
+        color="indigo"
+        slot="activator"
+        @click="showDialogCreateTask()"
+      >
       <v-icon>add</v-icon>
-    </v-btn>
-    <span>Create Task</span>
-  </v-tooltip>
+      </v-btn>
+      <span>Add new task</span>
+      </v-tooltip>
+      <v-tooltip left>
+      <v-btn
+        fab
+        dark
+        small
+        color="green"
+        slot="activator"
+        @click="reloadTask()"
+      >
+        <v-icon>refresh</v-icon>
+      </v-btn>
+      <span>Refresh</span>
+      </v-tooltip>
+      <v-tooltip left>
+      <v-btn
+        fab
+        dark
+        small
+        color="blue darken-4"
+        slot="activator"
+      >
+        <v-icon>person_add</v-icon>
+      </v-btn>
+      <span>Invite People</span>
+      </v-tooltip>
+      <v-tooltip left>
+      <v-btn
+        fab
+        dark
+        small
+        color="white"
+        slot="activator"
+        class="black--text"
+      >
+        <v-icon>search</v-icon>
+      </v-btn>
+      <span>Search</span>
+      </v-tooltip>
+    </v-speed-dial>
     <create-task ref="dialogCreateTask" v-on:created-task="reloadTask()"></create-task>
 </v-container>
 </template>
@@ -164,7 +231,17 @@ export default {
       showError: false,
       error: {
         message: null
-      }
+      },
+      direction: 'top',
+      fab: false,
+      fling: false,
+      hover: false,
+      tabs: null,
+      top: false,
+      right: true,
+      bottom: true,
+      left: false,
+      transition: 'slide-y-reverse-transition'
     };
   },
   methods: {
@@ -295,7 +372,18 @@ export default {
             tasks_before_undo.splice(index, 1);
           }
         })
-      }).finally(() => {
+      })
+      .catch(err => {
+        if (err.response.status == 400){
+          this.showError = true;
+          var message = err.response.data.message;
+          if (typeof message == "undefined"){
+            message = err.response.data.detail;
+          }
+          this.error.message = message;
+        }
+      })
+      .finally(() => {
         this.showUndo = false;
       })
     },
@@ -351,15 +439,15 @@ export default {
       });
     },
 
-    removeFocusDragging(from){
+    removeFocusDragging(target){
       // remove blur effect
       let blur_tasks = document.getElementsByClassName('blur-task');
       Array.prototype.forEach.call(blur_tasks, (element, index) => {
         element.classList.add('hide');
       });
-      let next_drag_element = this.getNextDraggingElement(from.target);
+      let next_drag_element = this.getNextDraggingElement(target);
       if (!next_drag_element) return false;
-      next_drag_element.drag_area.classList.remove('focus-next-drag');
+      next_drag_element.drag_area.classList.remove('target-locked');
       Array.prototype.forEach.call(next_drag_element.drag_area.children, (task, index) => {
         task.classList.remove('hide')
       });
@@ -384,13 +472,16 @@ export default {
       });
     },
     end(from){
-      this.removeFocusDragging(from);
+      this.removeFocusDragging(from.target);
       if (this.isMoved) {
         this.updateTaskProgress(this.latestDragged.task_id, this.latestDragged.progress);
       }
       this.isMoved = false;
     },
     move(from){
+      let drag_area = from.to;
+      drag_area.classList.remove('focus-next-drag');
+      drag_area.classList.add('target-locked');
       var progress = from.draggedContext.element.progress;
       if (progress == TaskProgress.DONE) return false;
       let task_id = Number(from.dragged.dataset.taskid);
@@ -413,7 +504,15 @@ export default {
         disabled: false,
         ghostClass: "ghost",
       };
-    }
+    },
+    activeFab () {
+        switch (this.tabs) {
+          case 'one': return { 'class': 'purple', icon: 'account_circle' }
+          case 'two': return { 'class': 'red', icon: 'edit' }
+          case 'three': return { 'class': 'green', icon: 'keyboard_arrow_up' }
+          default: return {}
+        }
+      }
   },
   created(){
     this.reloadTask();
@@ -438,7 +537,7 @@ export default {
   width: 19%;
 }
 .flex.m-5px {
-  margin: 5px;
+  margin: 0 5px 0 5px;
 }
 .flex.no-box-shadow {
   box-shadow: none;
@@ -461,7 +560,7 @@ export default {
 }
 .progress-display {
   position: sticky;
-  top: 88px;
+  top: 120px;
   z-index: 100;
   background: #fff;
 }
@@ -469,11 +568,17 @@ export default {
   min-width: 50px;
   min-height: 100%;
 }
-.focus-next-drag {
+.focus-next-drag, .target-locked {
   border: 2px dashed #1565c0 !important;
   border-radius: 3px;
+}
+.focus-next-drag {
   background: #b3d4fc !important;
 }
+.target-locked {
+  background: #E8F5E9 !important;
+}
+
 .blur-task {
   width:100%;
   height:100%;
@@ -495,5 +600,17 @@ export default {
 }
 .hide {
   display: none !important;
+}
+
+.v-speed-dial {
+    position: absolute;
+  }
+.v-btn--floating {
+    position: relative;
+  }
+.v-btn__content i.v-icon {
+  left: unset !important;
+  top: unset !important;
+  line-height: -moz-block-height;
 }
 </style>

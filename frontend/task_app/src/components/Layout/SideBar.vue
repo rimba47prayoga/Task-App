@@ -6,6 +6,7 @@
     app
     :mini-variant="mini_variant"
     stateless
+    width="260"
   >
     <v-list class="pt-2 mb-1">
       <!-- <v-list-tile avatar>
