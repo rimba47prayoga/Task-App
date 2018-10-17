@@ -1,8 +1,14 @@
+from django.urls import include, path
 from rest_framework import routers
-from .views import TaskViewSet
+from .views import TaskViewSet, SearchTaskViewSet
 
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'', TaskViewSet)
+router.register('search', SearchTaskViewSet)
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('full_search', include('haystack.urls'))
+]
+
+urlpatterns += router.urls

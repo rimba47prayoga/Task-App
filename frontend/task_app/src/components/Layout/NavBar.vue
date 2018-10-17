@@ -6,18 +6,33 @@
       app
       fixed
     >
-      <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
+      <v-toolbar-title style="width: 264px" class="ml-0">
         <v-toolbar-side-icon @click.stop="setSidebar()"></v-toolbar-side-icon>
         <span class="hidden-sm-and-down">Task App</span>
       </v-toolbar-title>
-      <v-text-field
+      <!-- <v-text-field
         flat
         solo-inverted
         hide-details
         prepend-inner-icon="search"
         label="Search"
         class="hidden-sm-and-down"
-      ></v-text-field>
+      ></v-text-field> -->
+
+      <v-autocomplete
+        :loading="loading_search"
+        :items="items"
+        :search-input.sync="search"
+        v-model="select"
+        flat
+        hide-no-data
+        hide-details
+        label="Search"
+        prepend-inner-icon="search"
+        solo-inverted
+        :menu-props="{zIndex:'10000000'}"
+        id="search_autocomplete"
+      ></v-autocomplete>
       <v-spacer></v-spacer>
       <v-btn icon>
         <v-icon>apps</v-icon>
@@ -37,15 +52,73 @@
 </template>
 
 <script>
+import request from "../../services/request.js";
+
 export default {
+  data(){
+    return {
+      loading_search: false,
+      items: [],
+      recent_search: [],
+      cache_result: [],
+      select: null,
+      search: null
+    }
+  },
   methods: {
     setSidebar(){
       this.$store.commit('setSidebar', !this.$store.getters.sidebar)
     }
+  },
+  watch: {
+    search(val){
+      if(this.recent_search.indexOf(val) > -1){
+        let recent_word = this.cache_result.filter((item, index) => {
+          return item.key == val;
+        });
+        this.items = recent_word[0].result;
+        return;
+      };
+      if (val == null || !val || val == ''){
+        this.items = [];
+        return;
+      }
+      this.loading_search = true;
+      request.get(`task/search/autocomplete?q=${val}`)
+      .then(response => {
+        this.items = response.data.result;
+        this.recent_search.push(val);
+        this.cache_result.push({
+          key: val,
+          result: response.data.result
+        });
+      }).finally(() => {
+        this.loading_search = false;
+      })
+    }
+  },
+  mounted(){
+    let search = document.getElementById('search_autocomplete');
+    search.addEventListener('keydown', (event) => {
+      if (event.keyCode == 13){
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        console.log(event);
+        return false;
+      }
+    })
   }
 }
 </script>
 
 <style>
-
+.v-list__tile__title {
+  font-weight: bold;
+}
+.v-list__tile__title > .v-list__tile__mask {
+  font-weight: normal;
+  background: none !important;
+  color: unset !important;
+}
 </style>

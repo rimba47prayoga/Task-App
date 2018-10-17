@@ -2,6 +2,8 @@ from collections import OrderedDict
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from haystack.query import SearchQuerySet
+from haystack.utils.highlighting import Highlighter
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import viewsets
@@ -90,3 +92,22 @@ class TaskViewSet(generics.ListAPIView,
         instance.progress -= 1
         instance.save()
         return Response({'progress': instance.progress})
+
+
+class SearchTaskViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Task.objects.none()
+
+    def list(self, request, *args, **kwargs):
+        return super(SearchTaskViewSet, self).list(request, *args, **kwargs)
+
+    @action(methods=['get'], detail=False)
+    def autocomplete(self, request):
+        q = request.query_params.get('q')
+        if q:
+            search_result = SearchQuerySet().autocomplete(text__icontains=q)
+            search_result = map(lambda x: x.title, search_result)
+            search_result = {
+                'result': list(search_result)
+            }
+            return Response(search_result)
+        return Response([])

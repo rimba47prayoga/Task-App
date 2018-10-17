@@ -44,7 +44,8 @@ THIRD_PARTY_APPS = [
     'rest_framework_swagger',
     'corsheaders',
     'django_filters',
-    'django_extensions'
+    'django_extensions',
+    'haystack'
 ]
 
 LOCAL_APPS = [
@@ -165,3 +166,19 @@ JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(hours=1)
 }
+
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+#         'URL': 'http://localhost:9200/',
+#         'INDEX_NAME': 'haystack_tasks',
+#     }
+# }
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    },
+}
+
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.functional import cached_property
 
 from core.models import BaseModel
 from .choices import TaskChoices
@@ -42,6 +43,10 @@ class Task(BaseModel):
 
     def __str__(self):
         return self.title
+
+    @cached_property
+    def branch_name(self):
+        return self.prefix_branch + '-' + self.branch
 
     @classmethod
     def generate_branch(cls):

@@ -1,0 +1,7 @@
+{% for result in page.object_list %}
+   {{ result.object.title }}
+   {{ result.object.label }}
+   {{ result.object.assignee }}
+{% empty %}
+     No results found.
+{% endfor %}

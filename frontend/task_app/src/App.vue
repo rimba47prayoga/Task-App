@@ -37,11 +37,6 @@ export default {
     NavBar,
     SideBar
   },
-  data(){
-    return {
-      baseUrl: process.env.BASE_URL
-    }
-  },
   methods: {
     lastPath(){
       return capitalize(this.$route.name)

@@ -365,11 +365,12 @@ export default {
         let tasks_before_undo = this.getTaskByProgress(Number(this.latestDragged.progress));
         tasks_before_undo.map((task, index) => {
           if (task.id == task_id){
+            tasks_before_undo.splice(index, 1);
             task.progress = response.data.progress;
             tasks_after_undo.push(task);
             let progress = this.getTaskByProgress(response.data.progress, true);
             this.sortTask(progress);
-            tasks_before_undo.splice(index, 1);
+
           }
         })
       })
