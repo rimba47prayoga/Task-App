@@ -5,11 +5,10 @@
     :absolute="true"
     :auto-height="true"
     :right="true"
-    :timeout="6000"
+    :timeout="1000000"
     :top="true"
     color="white"
-    class="black--text"
-    style="height: 53px;font-size: 15px;"
+    class="black--text task-snackbar"
     >
     <v-icon class="primary--text mr-3">warning</v-icon>
     Task has changed :
@@ -613,5 +612,16 @@ export default {
   left: unset !important;
   top: unset !important;
   line-height: -moz-block-height;
+}
+
+.task-snackbar {
+  height: 53px;
+  font-size: 15px;
+}
+.task-snackbar .v-snack__content {
+  padding: 10px 24px;
+}
+.task-snackbar .v-snack__wrapper {
+  border-radius: 4px;
 }
 </style>

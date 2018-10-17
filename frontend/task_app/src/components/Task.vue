@@ -100,6 +100,7 @@ export default {
 <style>
 .font-weight-normal {
   font-weight: normal;
+  line-height: normal;
 }
 .task-user-icon, .theme--light.task-user-icon{
   font-size: 30px;

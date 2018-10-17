@@ -8,31 +8,27 @@
     >
       <v-toolbar-title style="width: 264px" class="ml-0">
         <v-toolbar-side-icon @click.stop="setSidebar()"></v-toolbar-side-icon>
-        <span class="hidden-sm-and-down">Task App</span>
+        <img src="@/assets/task_icon.png" class="task_icon" />
+        <span class="hidden-sm-and-down ml-3">Task App</span>
       </v-toolbar-title>
-      <!-- <v-text-field
-        flat
-        solo-inverted
-        hide-details
-        prepend-inner-icon="search"
-        label="Search"
-        class="hidden-sm-and-down"
-      ></v-text-field> -->
 
       <v-autocomplete
+        v-model="select"
         :loading="loading_search"
         :items="items"
         :search-input.sync="search"
-        v-model="select"
+        item-text="title"
+        item-value="id"
+        clearable
         flat
         hide-no-data
-        hide-details
         label="Search"
         prepend-inner-icon="search"
         solo-inverted
         :menu-props="{zIndex:'10000000'}"
         id="search_autocomplete"
-      ></v-autocomplete>
+      >
+      </v-autocomplete>
       <v-spacer></v-spacer>
       <v-btn icon>
         <v-icon>apps</v-icon>
@@ -120,5 +116,12 @@ export default {
   font-weight: normal;
   background: none !important;
   color: unset !important;
+}
+.task_icon {
+  width: 40px;
+  vertical-align: middle;
+}
+nav .v-autocomplete .v-input__slot {
+  margin: 0;
 }
 </style>

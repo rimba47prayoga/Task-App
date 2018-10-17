@@ -3,7 +3,6 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from haystack.query import SearchQuerySet
-from haystack.utils.highlighting import Highlighter
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import viewsets
@@ -105,9 +104,18 @@ class SearchTaskViewSet(viewsets.ReadOnlyModelViewSet):
         q = request.query_params.get('q')
         if q:
             search_result = SearchQuerySet().autocomplete(text__icontains=q)
-            search_result = map(lambda x: x.title, search_result)
+            result = []
+            for task in search_result:
+                result.append(
+                    OrderedDict([
+                        ('id', task.pk),
+                        ('title', task.title),
+                        ('branch', task.branch_name),
+                        ('assignee', task.assignee)
+                    ])
+                )
             search_result = {
-                'result': list(search_result)
+                'result': result
             }
             return Response(search_result)
         return Response([])
