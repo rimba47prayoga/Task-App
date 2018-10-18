@@ -18,7 +18,9 @@
           </v-breadcrumbs-item>
         </v-breadcrumbs>
         </v-layout>
-        <router-view></router-view>
+        <transition name="fade" mode="out-in" appear>
+          <router-view></router-view>
+        </transition>
       </v-content>
     </v-app>
     <router-view v-else></router-view>
@@ -72,5 +74,15 @@ export default {
 }
 .theme--light.application{
   background: #ffffff;
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .2s ease-in-out;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+#nprogress .bar {
+  background: #42A5F5;
+  height: 3px;
 }
 </style>

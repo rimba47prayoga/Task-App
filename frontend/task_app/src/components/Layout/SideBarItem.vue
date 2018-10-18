@@ -89,9 +89,16 @@ export default {
     return {
       items: [
         {
+          text: "Project"
+        },
+        {
           icon: "dashboard",
           text: "Dashboard",
           link: "/"
+        },
+        {
+          icon: "developer_board",
+          text: "Board",
         },
         {
           icon: "library_books",

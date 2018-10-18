@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import NProgress from 'nprogress';
 import { store } from '../store/store';
 import Login from '@/components/User/Login';
 import AuthService from '../services/auth-service';
+import 'nprogress/nprogress.css';
 
 Vue.use(Router);
 
@@ -40,7 +42,14 @@ let router = new Router({
   mode: 'history'
 });
 
+NProgress.configure({
+  showSpinner: false,
+  speed: 1000,
+  easing: 'fade'
+})
+
 router.beforeEach((to, _from, next) => {
+  NProgress.start();
   if (to.matched.some(record => record.meta.requireAuth)) {
     if (!store.getters.isLoggedIn) {
       localStorage.setItem('nextUrl', to.fullPath);
@@ -62,5 +71,9 @@ router.beforeEach((to, _from, next) => {
     next();
   }
 });
+
+router.afterEach((to, from) => {
+  NProgress.done();
+})
 
 export default router;

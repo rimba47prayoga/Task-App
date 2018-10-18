@@ -559,9 +559,6 @@ export default {
   position: relative;
 }
 .progress-display {
-  position: sticky;
-  top: 120px;
-  z-index: 100;
   background: #fff;
 }
 .drag-area {
