@@ -4,8 +4,9 @@
     <div class="mb-1 mt-1 project-sidebar-item">
       <v-menu
         v-model="menu"
+        absolute
         :close-on-content-click="false"
-        :nudge-width="200"
+        :nudge-width="300"
         offset-x
       >
         <v-list-tile class="mb-3 mt-3" slot="activator">
@@ -207,5 +208,8 @@ div.active, div.active i {
 }
 .project-sidebar-item:hover {
   background: rgba(9, 30, 66, 0.04) !important;
+}
+.project-sidebar-item .v-menu.v-menu--inline {
+  width: 100%;
 }
 </style>

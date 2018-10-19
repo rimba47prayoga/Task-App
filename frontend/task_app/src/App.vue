@@ -90,4 +90,15 @@ export default {
 .theme--light.v-list .v-list__tile--link:hover {
   background: rgba(9, 30, 66, 0.04) !important;
 }
+
+aside .v-navigation-drawer__border {
+  border-right: 1px solid rgba(0,0,0,.12);
+  background: none !important;
+  width: 10px;
+}
+
+aside .v-navigation-drawer__border:hover{
+  border-right: 2px solid #1565c0 !important;
+  cursor: col-resize;
+}
 </style>

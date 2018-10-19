@@ -14,30 +14,45 @@
       <v-icon class="ml-1 mr-3 white--text">playlist_add</v-icon>
         Create Task
       </v-card-title>
-      <v-container grid-list-sm class="pa-4">
+      <v-container grid-list-sm class="scroll-y pa-4" id="scroll-target">
         <v-form
+        v-scroll:#scroll-target=""
         v-model="valid"
         ref="formCreateTask"
         @submit.prevent.stop="submitForm($event)"
         lazy-validation
+        class="create-task-form"
         >
           <v-layout row wrap>
 
             <!-- Title -->
-            <v-flex xs12 align-center justify-space-between mb-1>
-              <v-layout align-center>
-                <v-text-field
-                  v-model="title"
-                  prepend-icon="short_text"
-                  label="Title"
-                  :rules="default_rules"
-                  required
-                ></v-text-field>
-              </v-layout>
+            <v-flex xs12>
+              <label class="input-label">
+                Title
+                <span class="required">*</span>
+              </label>
+              <v-flex xs10>
+                <v-layout align-center>
+                  <v-text-field
+                    v-model="title"
+                    prepend-inner-icon="short_text"
+                    placeholder="Title"
+                    :rules="default_rules"
+                    required
+                    solo
+                    flat
+                  ></v-text-field>
+                </v-layout>
+              </v-flex>
             </v-flex>
 
             <!-- Task Type -->
-              <v-flex xs5 mb-1>
+            <v-flex xs12>
+              <label class="input-label">
+                Task Type
+                <span class="required">*</span>
+              </label>
+              <v-flex xs5>
                 <v-autocomplete
                   v-model="selected_task_type"
                   :items="task_type"
@@ -46,10 +61,11 @@
                   hide-no-data
                   item-text="label"
                   item-value="type"
-                  label="Task Type"
-                  prepend-icon="null"
+                  placeholder="Task Type"
                   clearable
                   @change="changeTaskType"
+                  solo
+                  flat
                 >
                   <template slot="no-data">
                     <v-list-tile>
@@ -93,68 +109,14 @@
 
                 </v-autocomplete>
               </v-flex>
-
-            <!-- Sub Task -->
-            <v-flex xs10 mb-1>
-              <v-autocomplete
-                v-if="typeIsSubTask"
-                v-model="parent_task"
-                :items="parent_task_items"
-                :loading="isLoadingParentTask"
-                :search-input.sync="search_parent_task"
-                :rules="default_rules"
-                required
-                hide-no-data
-                item-text="title"
-                item-value="id"
-                label="Parent Task"
-                prepend-icon="assignment"
-                return-object
-                clearable
-              >
-                <template slot="no-data">
-                  <v-list-tile>
-                    <v-list-tile-title>
-                      Search for your favorite
-                      <strong>Cryptocurrency</strong>
-                    </v-list-tile-title>
-                  </v-list-tile>
-                </template>
-                <template
-                  slot="selection"
-                  slot-scope="{ item, selected }"
-                >
-                  <v-chip
-                    color="blue-grey"
-                    class="white--text"
-                  >
-                    <v-icon left>mdi-coin</v-icon>
-                    <span v-text="item.prefix_branch + '-' + item.branch"></span>
-                  </v-chip>
-                  {{ item.title }}
-                </template>
-                <template
-                  slot="item"
-                  slot-scope="{ item, tile }"
-                >
-                  <v-chip
-                    color="blue-grey"
-                    class="white--text"
-                  >
-                    <span v-text="item.prefix_branch + '-' + item.branch"></span>
-                  </v-chip>
-                  <v-list-tile-content>
-                    <v-list-tile-title v-text="item.title"></v-list-tile-title>
-                  </v-list-tile-content>
-                  <v-list-tile-action>
-                    <v-icon>mdi-coin</v-icon>
-                  </v-list-tile-action>
-                </template>
-              </v-autocomplete>
             </v-flex>
-
           <!-- Priority -->
-            <v-flex xs5 mb-1>
+          <v-flex xs12>
+            <label class="input-label">
+              Priority
+              <span class="required">*</span>
+            </label>
+            <v-flex xs5>
               <v-autocomplete
                 v-model="selected_priority"
                 :items="priority_items"
@@ -163,9 +125,10 @@
                 hide-no-data
                 item-text="label"
                 item-value="type"
-                label="Priority"
-                prepend-icon="null"
+                placeholder="Priority"
                 clearable
+                solo
+                flat
               >
                 <template slot="no-data">
                   <v-list-tile>
@@ -215,9 +178,11 @@
 
               </v-autocomplete>
             </v-flex>
-
+          </v-flex>
           <!-- Assignee -->
-            <v-flex xs5 mb-1>
+          <v-flex xs12>
+            <label class="input-label">Assignee</label>
+            <v-flex xs5>
               <v-autocomplete
                 v-model="assignee_task"
                 :items="assignee_items"
@@ -226,9 +191,10 @@
                 hide-no-data
                 item-text="username"
                 item-value="id"
-                label="Assignee"
-                prepend-icon="null"
+                placeholder="Assignee"
                 clearable
+                solo
+                flat
               >
                 <template slot="no-data">
                   <v-list-tile>
@@ -268,28 +234,101 @@
                 </template>
               </v-autocomplete>
             </v-flex>
-
+          </v-flex>
+          <!-- Sub Task -->
+          <v-flex xs12 v-if="typeIsSubTask">
+            <label class="input-label">
+              Parent Task
+              <span class="required">*</span>
+            </label>
+            <v-flex xs10>
+              <v-autocomplete
+                v-model="parent_task"
+                :items="parent_task_items"
+                :loading="isLoadingParentTask"
+                :search-input.sync="search_parent_task"
+                :rules="default_rules"
+                required
+                hide-no-data
+                item-text="title"
+                item-value="id"
+                placeholder="Parent Task"
+                prepend-inner-icon="assignment"
+                clearable
+                solo
+                flat
+              >
+                <template slot="no-data">
+                  <v-list-tile>
+                    <v-list-tile-title>
+                      Search for your favorite
+                      <strong>Cryptocurrency</strong>
+                    </v-list-tile-title>
+                  </v-list-tile>
+                </template>
+                <template
+                  slot="selection"
+                  slot-scope="{ item, selected }"
+                >
+                  <v-chip
+                    color="blue-grey"
+                    class="white--text"
+                  >
+                    <v-icon left>mdi-coin</v-icon>
+                    <span v-text="item.prefix_branch + '-' + item.branch"></span>
+                  </v-chip>
+                  {{ item.title }}
+                </template>
+                <template
+                  slot="item"
+                  slot-scope="{ item, tile }"
+                >
+                  <v-chip
+                    color="blue-grey"
+                    class="white--text"
+                  >
+                    <span v-text="item.prefix_branch + '-' + item.branch"></span>
+                  </v-chip>
+                  <v-list-tile-content>
+                    <v-list-tile-title v-text="item.title"></v-list-tile-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-icon>mdi-coin</v-icon>
+                  </v-list-tile-action>
+                </template>
+              </v-autocomplete>
+            </v-flex>
+          </v-flex>
             <!-- Label -->
+          <v-flex xs12>
+            <label class="input-label">Label</label>
             <v-flex xs10>
               <v-text-field
               v-model="label"
               type="text"
-              prepend-icon="label"
+              prepend-inner-icon="label"
               label="Label"
+              solo
+              flat
               ></v-text-field>
             </v-flex>
-
+          </v-flex>
             <!-- Descriptions -->
-            <v-flex xs12>
+          <v-flex xs12>
+            <label class="input-label">Descriptions</label>
+            <v-flex xs10>
               <v-textarea
                 v-model="descriptions"
                 :auto-grow="true"
                 row-height="14"
                 name="input-7-4"
                 label="Descriptions"
-                prepend-icon="description"
+                prepend-inner-icon="description"
+                solo
+                flat
               ></v-textarea>
             </v-flex>
+          </v-flex>
           </v-layout>
           <input style="display:none;" type="submit" ref="submitButton" />
         </v-form>
@@ -498,5 +537,42 @@ export default {
 
 .v-input__icon.v-input__icon--clear i{
   font-size: 15px;
+}
+
+.form-control {
+  -webkit-transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+  background-clip: padding-box;
+  background-color: #F4F5F7 !important;
+  border: 1px solid #e4e7ea;
+  border-radius: .25rem;
+  color: #5c6873;
+  display: block;
+  font-size: .9rem;
+  height: calc(2.2625rem + 2px);
+  /* line-height: 1.5; */
+  padding: .375rem .75rem;
+  transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+  width: 100%;
+}
+
+form.create-task-form .v-text-field--solo .v-input__slot {
+  background-color: #F4F5F7 !important;
+  border: 1px solid #e4e7ea;
+  min-height: 42px;
+}
+
+form.create-task-form .v-text-field__details {
+  margin: 0 !important;
+}
+
+label.input-label {
+  color: #5e6c84;
+  font-weight: bold;
+  margin-left: 1px;
+}
+span.required {
+  color: #ff5252;
 }
 </style>

@@ -44,8 +44,7 @@ let router = new Router({
 
 NProgress.configure({
   showSpinner: false,
-  speed: 1000,
-  easing: 'fade'
+  speed: 1000
 })
 
 router.beforeEach((to, _from, next) => {
