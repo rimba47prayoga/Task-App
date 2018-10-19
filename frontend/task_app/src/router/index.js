@@ -18,7 +18,7 @@ let router = new Router({
   routes: [
     {
       path: '',
-      name: 'HelloWorld',
+      name: 'dashboard',
       component: lazyLoad('HelloWorld')
     },
     {
@@ -73,6 +73,7 @@ router.beforeEach((to, _from, next) => {
 });
 
 router.afterEach((to, from) => {
+  store.dispatch('setRoute', to);
   NProgress.done();
 })
 

@@ -7,7 +7,7 @@
       fixed
       class="task-navbar"
     >
-      <v-toolbar-title style="width: 260px" class="ml-0 pl-3 mr-4">
+      <v-toolbar-title style="width: 260px" class="ml-1 pl-2 mr-4">
         <v-toolbar-side-icon @click.stop="setSidebar()"></v-toolbar-side-icon>
         <img src="@/assets/task_icon.png" class="task_icon" />
         <span class="hidden-sm-and-down ml-3">Task App</span>
@@ -18,6 +18,7 @@
         :loading="loading_search"
         :items="items"
         :search-input.sync="search"
+        :autofocus="true"
         item-text="title"
         item-value="id"
         clearable

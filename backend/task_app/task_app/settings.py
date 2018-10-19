@@ -52,6 +52,7 @@ LOCAL_APPS = [
     'api',
     'core',
     'etc',
+    'project',
     'task',
     'task_user'
 ]

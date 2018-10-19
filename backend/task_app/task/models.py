@@ -3,12 +3,13 @@ from django.db import models
 from django.utils.functional import cached_property
 
 from core.models import BaseModel
+from project.models import TaskProject
 from .choices import TaskChoices
 from .managers import TaskManager
 
 
 class Task(BaseModel):
-
+    project = models.ForeignKey(TaskProject, on_delete=models.PROTECT)
     title = models.CharField(max_length=255)
     task_type = models.IntegerField(
         choices=TaskChoices.TASK_TYPE_CHOICES,
@@ -16,7 +17,6 @@ class Task(BaseModel):
     )
     label = models.CharField(max_length=255, null=True, blank=True)
     priority = models.IntegerField(choices=TaskChoices.PRIORITY_CHOICES)
-    prefix_branch = models.CharField(max_length=10)
     branch = models.CharField(max_length=10, unique=True)
     assignee = models.ForeignKey(
         User,
@@ -36,7 +36,8 @@ class Task(BaseModel):
         null=True,
         blank=True
     )
-    
+
+    deadline = models.DateTimeField()
     descriptions = models.TextField(null=True, blank=True)
     
     objects = TaskManager()
@@ -46,7 +47,7 @@ class Task(BaseModel):
 
     @cached_property
     def branch_name(self):
-        return self.prefix_branch + '-' + self.branch
+        return self.project.board_name + '-' + self.branch
 
     @classmethod
     def generate_branch(cls):

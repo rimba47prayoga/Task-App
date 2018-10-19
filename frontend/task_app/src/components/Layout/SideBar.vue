@@ -7,6 +7,7 @@
     :mini-variant="mini_variant"
     stateless
     width="260"
+    class="white-grey-blue"
   >
     <side-bar-item
       v-bind:mini_variant="mini_variant"
@@ -19,7 +20,7 @@
 <script>
 import SideBarItem from "./SideBarItem";
 
-import {mapState} from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
   components: {

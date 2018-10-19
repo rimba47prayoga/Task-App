@@ -36,28 +36,6 @@
               </v-layout>
             </v-flex>
 
-            <!-- Branch -->
-            <v-flex xs3 mb-1>
-              <v-select
-                v-model="selected_prefix"
-                :items="prefix_items"
-                :rules="default_rules"
-                label="Prefix"
-                prepend-icon="share"
-                required
-              ></v-select>
-            </v-flex>
-
-            <v-flex xs2 mb-1>
-              <v-text-field
-                v-model="branch"
-                disabled
-                label="Branch"
-                :rules="default_rules"
-                required
-              ></v-text-field>
-            </v-flex>
-
             <!-- Task Type -->
               <v-flex xs5 mb-1>
                 <v-autocomplete
@@ -348,7 +326,6 @@ export default {
         "NA"
       ],
       title: '',
-      selected_prefix: null,
       selected_task_type: TaskType.TASK.toString(),
       selected_priority: TaskPriority.MEDIUM,
       priority_items: [
@@ -378,7 +355,6 @@ export default {
           icon: "arrow_upward",
         }
       ],
-      branch: '',
       task_type: [
         {
           type: TaskType.TASK.toString(),
@@ -432,15 +408,6 @@ export default {
       this.assignee_task = '';
       this.label = '';
       this.descriptions = '';
-    },
-    triggerDialogShow(show){
-      // TODO: or won't do: change vuex storage to component storage
-      if(show){
-        request.get('task/generate_branch')
-        .then(response => {
-          this.branch = response.data.branch;
-        })
-      }
     },
     submitForm(event){
       if(this.$refs.formCreateTask.validate()){

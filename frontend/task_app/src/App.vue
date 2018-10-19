@@ -4,10 +4,12 @@
       <side-bar></side-bar>
       <nav-bar></nav-bar>
       <v-content>
-        <v-layout align-content-space-between justify-start pr-3 pl-3 ml-3>
-        <div style="font-size: 25px;line-height: -moz-block-height;" class="mr-2">{{ lastPath() }}</div>
+        <v-layout align-content-space-between justify-start>
+        <!-- <div style="font-size: 25px;line-height: -moz-block-height;" class="mr-2"></div> -->
         <v-breadcrumbs :large="true" divider="-" class="pr-4 pl-4 ma-2">
-
+          <v-breadcrumbs-item style="font-size: 25px">
+            {{ lastPath() }}
+          </v-breadcrumbs-item>
           <v-breadcrumbs-item
             v-for="(item, index) in breadcrumbs"
             :key="index"
@@ -84,5 +86,8 @@ export default {
 #nprogress .bar {
   background: #42A5F5;
   height: 3px;
+}
+.theme--light.v-list .v-list__tile--link:hover {
+  background: rgba(9, 30, 66, 0.04) !important;
 }
 </style>

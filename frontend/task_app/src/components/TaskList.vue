@@ -263,10 +263,6 @@ export default {
         'showDialogCreateTask',
         !this.$store.getters.isCreatingTask
       )
-      // Trigger dialog show
-      this.$refs.dialogCreateTask.triggerDialogShow(
-        true
-      );
     },
     reloadTask(){
       this.isLoading = true;
@@ -274,6 +270,7 @@ export default {
       .then(response => {
         let data = response.data;
         if (!data.length) {
+          this.isLoading = false;
           return;
         }
         data.map((obj, index) => {

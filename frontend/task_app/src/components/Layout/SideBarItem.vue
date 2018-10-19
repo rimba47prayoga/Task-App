@@ -1,52 +1,73 @@
 <template>
   <v-list dense>
+
+    <div class="mb-1 mt-1 project-sidebar-item">
+      <v-menu
+        v-model="menu"
+        :close-on-content-click="false"
+        :nudge-width="200"
+        offset-x
+      >
+        <v-list-tile class="mb-3 mt-3" slot="activator">
+          <v-tooltip right z-index="1000000">
+            <v-list-tile-action slot="activator">
+              <img class="project_icon" src="@/assets/project_icon.png" />
+            </v-list-tile-action>
+            <span>Project Name</span>
+          </v-tooltip>
+          <v-list-tile-content>
+            <v-list-tile-title style="font-size:17px;">
+              Project Name
+            </v-list-tile-title>
+            <span style="font-size: 12px; color: #616161;">Software Project</span>
+          </v-list-tile-content>
+        </v-list-tile>
+
+        <v-card>
+          <v-list>
+            <v-list-tile avatar>
+              <v-list-tile-avatar>
+                <img class="project_icon" src="@/assets/project_icon.png" />
+              </v-list-tile-avatar>
+
+              <v-list-tile-content>
+                <v-list-tile-title>Project Name</v-list-tile-title>
+                <v-list-tile-sub-title>Software Project</v-list-tile-sub-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list>
+          <v-divider></v-divider>
+          <v-list>
+            <v-list-tile avatar>
+              <v-list-tile-avatar>
+                <img class="project_icon" src="@/assets/project_icon.png" />
+              </v-list-tile-avatar>
+
+              <v-list-tile-content>
+                <v-list-tile-title>Project Name</v-list-tile-title>
+                <v-list-tile-sub-title>Software Project</v-list-tile-sub-title>
+              </v-list-tile-content>
+            </v-list-tile>
+          </v-list>
+
+          <v-divider></v-divider>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn flat @click="menu = false">Cancel</v-btn>
+            <v-btn color="primary" flat @click="menu = false">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-menu>
+    </div>
+
     <template v-for="item in items">
-      <v-layout
-        v-if="item.heading"
-        :key="item.heading"
-        row
-        align-center
-      >
-        <v-flex xs6>
-          <v-subheader v-if="item.heading">
-            {{ item.heading }}
-          </v-subheader>
-        </v-flex>
-        <v-flex xs6 class="text-xs-center">
-          <a href="#!" class="body-2 black--text">EDIT</a>
-        </v-flex>
-      </v-layout>
-      <v-list-group
-        v-else-if="item.children"
-        v-model="item.model"
+      <v-list-tile
         :key="item.text"
-        :prepend-icon="item.model ? item.icon : item['icon-alt']"
-        append-icon=""
-        class="parent-list"
+        @click="redirect(item.link)"
+        :class="currentRoute.name == item.name ? 'active': ''"
       >
-        <v-list-tile slot="activator">
-          <v-list-tile-content>
-            <v-list-tile-title>
-              {{ item.text }}
-            </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-        <v-list-tile
-          v-for="(child, i) in item.children"
-          :key="i"
-          @click.prevent
-        >
-          <v-list-tile-action v-if="child.icon" class="pa-2">
-            <v-icon>{{ child.icon }}</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>
-              {{ child.text }}
-            </v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list-group>
-      <v-list-tile v-else :key="item.text" @click="redirect(item.link)">
         <v-tooltip right z-index="1000000">
           <v-list-tile-action slot="activator" class="pa-2">
             <v-icon>{{ item.icon }}</v-icon>
@@ -81,20 +102,24 @@
 </template>
 
 <script>
+import request from '../../services/request.js';
+import { mapstate, mapState } from 'vuex';
+
 export default {
   props: {
     mini_variant: Boolean
   },
   data(){
     return {
+      menu: false,
+      message: false,
+      hints: true,
       items: [
-        {
-          text: "Project"
-        },
         {
           icon: "dashboard",
           text: "Dashboard",
-          link: "/"
+          link: "/",
+          name: "dashboard"
         },
         {
           icon: "developer_board",
@@ -103,32 +128,20 @@ export default {
         {
           icon: "library_books",
           text: "Tasks",
-          link: "/task/"
-        },
-        { icon: "history", text: "Frequently contacted" },
-        { icon: "content_copy", text: "Duplicates" },
-        {
-          icon: "keyboard_arrow_up",
-          "icon-alt": "keyboard_arrow_down",
-          text: "Labels",
-          model: true,
-          // eslint-disable-next-line
-          children: [
-            { icon: "add", text: "Create label" }
-          ]
+          link: "/task/",
+          name: "task"
         },
         {
-          icon: "keyboard_arrow_up",
-          "icon-alt": "keyboard_arrow_down",
-          text: "More",
-          model: false,
-          children: [
-            { text: "Import" },
-            { text: "Export" },
-            { text: "Print" },
-            { text: "Undo changes" },
-            { text: "Other contacts" }
-          ]
+          icon: "history",
+          text: "Backlog"
+        },
+        {
+          icon: "content_copy",
+          text: "Duplicates"
+        },
+        {
+          icon: "add",
+          text: "Create Task",
         },
         { icon: "settings", text: "Settings" },
         { icon: "chat_bubble", text: "Send feedback" },
@@ -148,6 +161,17 @@ export default {
     setMiniVariant(){
       this.$emit('set-mini-variant');
     }
+  },
+  created(){
+    request.get('project/')
+    .then(response => {
+
+    });
+  },
+  computed: {
+    ...mapState([
+      'currentRoute'
+    ]),
   }
 }
 </script>
@@ -174,5 +198,14 @@ export default {
 .v-navigation-drawer--mini-variant .bottom-list {
   justify-content: center;
 }
-
+img.project_icon {
+  width: 40px;
+}
+div.active, div.active i {
+  color: #1565c0 !important;
+  background: rgba(9, 30, 66, 0.04) !important;
+}
+.project-sidebar-item:hover {
+  background: rgba(9, 30, 66, 0.04) !important;
+}
 </style>

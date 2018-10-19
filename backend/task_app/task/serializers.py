@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
+from project.models import TaskProject
 from .models import Task
 from .choices import TaskChoices
 from .services.create_task import CreateTaskService
@@ -29,6 +30,9 @@ class TaskSerializer(serializers.ModelSerializer):
 
 
 class CreateTaskSerializer(serializers.Serializer):
+    project = serializers.PrimaryKeyRelatedField(
+        queryset=TaskProject.objects.all()
+    )
     title = serializers.CharField()
     task_type = serializers.ChoiceField(choices=TaskChoices.TASK_TYPE_CHOICES)
     label = serializers.CharField(required=False, allow_blank=True)

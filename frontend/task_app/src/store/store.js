@@ -15,7 +15,8 @@ export const store = new Vuex.Store({
     // user handler
     token: localStorage.getItem('token') || '',
     user: JSON.parse(localStorage.getItem('user')) || {},
-    isLoggedIn: VueCookies.get('__isLn') == "1"
+    isLoggedIn: VueCookies.get('__isLn') == "1",
+    currentRoute: {}
   },
   mutations: {
     setSidebar(state, sidebar) {
@@ -33,6 +34,9 @@ export const store = new Vuex.Store({
     },
     logout (state) {
       state.isLoggedIn = false;
+    },
+    setRoute (state, route) {
+      state.currentRoute = route;
     }
   },
   actions: {
@@ -60,6 +64,9 @@ export const store = new Vuex.Store({
 
     logout ({ commit }) {
       commit('logout');
+    },
+    setRoute ({ commit }, route) {
+      commit('setRoute', route);
     }
   },
   getters: {
@@ -71,6 +78,7 @@ export const store = new Vuex.Store({
     },
     isLoggedIn: ({ isLoggedIn }) => isLoggedIn,
     user: ({ user }) => user,
-    token: ({ token }) => token
+    token: ({ token }) => token,
+    currentRoute: ({ currentRoute }) => currentRoute
   }
 });

@@ -8,15 +8,16 @@ class CreateTaskService(BaseService):
 
     def execute(self):
         task = Task()
+        task.project = self.payload.get('project')
         task.title = self.payload.get('title')
         task_type = self.payload.get('task_type')
         task.task_type = task_type
         task.label = self.payload.get('label')
         task.priority = self.payload.get('priority')
-        task.prefix_branch = self.payload.get('prefix_branch')
-        task.branch = self.payload.get('branch')
+        task.branch = Task.generate_branch()
         assignee = self.payload.get('assignee')
         if assignee:
+            # TODO: send email to user if he not assignee to himself
             task.assignee = assignee
         if task_type == TaskChoices.SUB_TASK:
             task.parent = self.payload.get('parent')  # it must be instance

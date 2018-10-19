@@ -19,4 +19,4 @@ class TaskIndex(indexes.SearchIndex, indexes.Indexable):
         return Task
 
     def prepare_branch_name(self, obj):
-        return obj.prefix_branch + '-' + obj.branch
+        return obj.project.board_name + '-' + obj.branch
