@@ -4,7 +4,7 @@ from .views import TaskViewSet, SearchTaskViewSet
 
 
 router = routers.DefaultRouter(trailing_slash=False)
-router.register(r'', TaskViewSet)
+router.register(r'list', TaskViewSet)
 router.register('search', SearchTaskViewSet)
 
 urlpatterns = [

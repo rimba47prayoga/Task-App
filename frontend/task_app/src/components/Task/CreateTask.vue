@@ -5,7 +5,8 @@
   :persistent="true"
   :no-click-animation="true"
   :lazy="true"
-  width="700px"
+  max-width="800px"
+  scrollable
   >
     <v-card>
       <v-card-title
@@ -14,109 +15,182 @@
       <v-icon class="ml-1 mr-3 white--text">playlist_add</v-icon>
         Create Task
       </v-card-title>
-      <v-container grid-list-sm class="scroll-y pa-4" id="scroll-target">
+      <v-card-text grid-list-sm class="pa-4" style="max-height: 500px">
         <v-form
-        v-scroll:#scroll-target=""
         v-model="valid"
         ref="formCreateTask"
         @submit.prevent.stop="submitForm($event)"
         lazy-validation
         class="create-task-form"
         >
-          <v-layout row wrap>
+        <v-layout row wrap>
+          <!-- Task Type -->
+          <v-flex xs12>
+            <label class="input-label">
+              Project
+              <span class="required">*</span>
+            </label>
+            <v-flex xs4>
+              <v-autocomplete
+                v-model="selected_project"
+                :items="project_items"
+                :rules="default_rules"
+                :search-input.sync="search_project"
+                :loading="isLoadingProject"
+                required
+                hide-no-data
+                item-text="name"
+                item-value="id"
+                placeholder="Project"
+                clearable
+                solo
+                flat
+              >
+                <template slot="no-data">
+                  <v-list-tile>
+                    <v-list-tile-title>
+                      Search for your favorite
+                      <strong>Cryptocurrency</strong>
+                    </v-list-tile-title>
+                  </v-list-tile>
+                </template>
 
-            <!-- Title -->
-            <v-flex xs12>
-              <label class="input-label">
-                Title
-                <span class="required">*</span>
-              </label>
-              <v-flex xs10>
-                <v-layout align-center>
-                  <v-text-field
-                    v-model="title"
-                    prepend-inner-icon="short_text"
-                    placeholder="Title"
-                    :rules="default_rules"
-                    required
-                    solo
-                    flat
-                  ></v-text-field>
-                </v-layout>
-              </v-flex>
+                <!-- items that have been selected -->
+                <template
+                  slot="selection"
+                  slot-scope="{ item, selected }"
+                >
+                  <img class="mr-1" style="width: 20px;" src="@/assets/project_icon.png" />
+                  {{ item.name + ' (' + item.board_name + ')' }}
+                </template>
+
+                <!-- items in dropdown autocomplete -->
+                <template
+                  slot="item"
+                  slot-scope="{ item, tile }"
+                >
+                  <img class="mr-1" style="width: 20px;" src="@/assets/project_icon.png" />
+                  <v-list-tile-content>
+                    <v-list-tile-title
+                    v-text="item.name + ' (' + item.board_name + ')'"
+                    ></v-list-tile-title>
+                  </v-list-tile-content>
+                </template>
+
+              </v-autocomplete>
             </v-flex>
+          </v-flex>
 
-            <!-- Task Type -->
-            <v-flex xs12>
-              <label class="input-label">
-                Task Type
-                <span class="required">*</span>
-              </label>
-              <v-flex xs5>
-                <v-autocomplete
-                  v-model="selected_task_type"
-                  :items="task_type"
+          <!-- Task Type -->
+          <v-flex xs12>
+            <label class="input-label">
+              Task Type
+              <span class="required">*</span>
+            </label>
+            <v-flex xs4>
+              <v-autocomplete
+                v-model="selected_task_type"
+                :items="task_type"
+                :rules="default_rules"
+                required
+                hide-no-data
+                item-text="label"
+                item-value="type"
+                placeholder="Task Type"
+                clearable
+                @change="changeTaskType"
+                solo
+                flat
+              >
+                <template slot="no-data">
+                  <v-list-tile>
+                    <v-list-tile-title>
+                      Search for your favorite
+                      <strong>Cryptocurrency</strong>
+                    </v-list-tile-title>
+                  </v-list-tile>
+                </template>
+
+                <!-- items that have been selected -->
+                <template
+                  slot="selection"
+                  slot-scope="{ item, selected }"
+                >
+                  <v-icon
+                  :class="item.type == '0'
+                  ? 'mr-2 task'
+                  : item.type == 1
+                  ? 'mr-2 sub-task'
+                  : 'mr-2 bug'"
+                  >{{ item.icon }}</v-icon>
+                  {{ item.label }}
+                </template>
+
+                <!-- items in dropdown autocomplete -->
+                <template
+                  slot="item"
+                  slot-scope="{ item, tile }"
+                >
+                  <v-icon
+                  :class="item.type == '0'
+                  ? 'mr-2 task'
+                  : item.type == 1
+                  ? 'mr-2 sub-task'
+                  : 'mr-2 bug'">{{ item.icon }}</v-icon>
+                  <v-list-tile-content>
+                    <v-list-tile-title v-text="item.label"></v-list-tile-title>
+                  </v-list-tile-content>
+                </template>
+
+              </v-autocomplete>
+            </v-flex>
+          </v-flex>
+
+          <!-- Title -->
+          <v-flex xs12>
+            <label class="input-label">
+              Title
+              <span class="required">*</span>
+            </label>
+            <v-flex xs11>
+              <v-layout align-center>
+                <v-text-field
+                  v-model="title"
+                  prepend-inner-icon="short_text"
+                  placeholder="Title"
                   :rules="default_rules"
                   required
-                  hide-no-data
-                  item-text="label"
-                  item-value="type"
-                  placeholder="Task Type"
-                  clearable
-                  @change="changeTaskType"
                   solo
                   flat
-                >
-                  <template slot="no-data">
-                    <v-list-tile>
-                      <v-list-tile-title>
-                        Search for your favorite
-                        <strong>Cryptocurrency</strong>
-                      </v-list-tile-title>
-                    </v-list-tile>
-                  </template>
-
-                  <!-- items that have been selected -->
-                  <template
-                    slot="selection"
-                    slot-scope="{ item, selected }"
-                  >
-                    <v-icon
-                    :class="item.type == '0'
-                    ? 'mr-2 task'
-                    : item.type == 1
-                    ? 'mr-2 sub-task'
-                    : 'mr-2 bug'"
-                    >{{ item.icon }}</v-icon>
-                    {{ item.label }}
-                  </template>
-
-                  <!-- items in dropdown autocomplete -->
-                  <template
-                    slot="item"
-                    slot-scope="{ item, tile }"
-                  >
-                    <v-icon
-                    :class="item.type == '0'
-                    ? 'mr-2 task'
-                    : item.type == 1
-                    ? 'mr-2 sub-task'
-                    : 'mr-2 bug'">{{ item.icon }}</v-icon>
-                    <v-list-tile-content>
-                      <v-list-tile-title v-text="item.label"></v-list-tile-title>
-                    </v-list-tile-content>
-                  </template>
-
-                </v-autocomplete>
-              </v-flex>
+                ></v-text-field>
+              </v-layout>
             </v-flex>
+          </v-flex>
+
+          <!-- Descriptions -->
+          <v-flex xs12>
+            <label class="input-label">Descriptions</label>
+            <v-flex xs11>
+              <v-textarea
+                v-model="descriptions"
+                :auto-grow="true"
+                row-height="14"
+                name="input-7-4"
+                placeholder="Descriptions"
+                prepend-inner-icon="description"
+                solo
+                flat
+              ></v-textarea>
+            </v-flex>
+          </v-flex>
+
           <!-- Priority -->
           <v-flex xs12>
             <label class="input-label">
               Priority
               <span class="required">*</span>
             </label>
-            <v-flex xs5>
+            <v-flex xs4>
               <v-autocomplete
                 v-model="selected_priority"
                 :items="priority_items"
@@ -179,10 +253,11 @@
               </v-autocomplete>
             </v-flex>
           </v-flex>
+
           <!-- Assignee -->
           <v-flex xs12>
             <label class="input-label">Assignee</label>
-            <v-flex xs5>
+            <v-flex xs4>
               <v-autocomplete
                 v-model="assignee_task"
                 :items="assignee_items"
@@ -234,6 +309,38 @@
                 </template>
               </v-autocomplete>
             </v-flex>
+          </v-flex>
+
+          <!-- Deadline -->
+          <v-flex xs12 sm6 md4>
+            <label class="input-label">
+              Deadline
+              <span class="required">*</span>
+            </label>
+            <v-menu
+              ref="select_deadline"
+              :close-on-content-click="false"
+              v-model="select_deadline"
+              :nudge-right="40"
+              :return-value.sync="deadline"
+              lazy
+              transition="fade-transition"
+              offset-y
+              full-width
+              min-width="290px"
+            >
+              <v-text-field
+                :rules="default_rules"
+                slot="activator"
+                v-model="formattedDate"
+                placeholder="Deadline date"
+                prepend-inner-icon="event"
+                readonly
+                flat
+                solo
+              ></v-text-field>
+              <v-date-picker v-model="deadline" @input="$refs.select_deadline.save(deadline)"></v-date-picker>
+            </v-menu>
           </v-flex>
           <!-- Sub Task -->
           <v-flex xs12 v-if="typeIsSubTask">
@@ -307,32 +414,16 @@
               v-model="label"
               type="text"
               prepend-inner-icon="label"
-              label="Label"
+              placeholder="Label"
               solo
               flat
               ></v-text-field>
             </v-flex>
           </v-flex>
-            <!-- Descriptions -->
-          <v-flex xs12>
-            <label class="input-label">Descriptions</label>
-            <v-flex xs10>
-              <v-textarea
-                v-model="descriptions"
-                :auto-grow="true"
-                row-height="14"
-                name="input-7-4"
-                label="Descriptions"
-                prepend-inner-icon="description"
-                solo
-                flat
-              ></v-textarea>
-            </v-flex>
-          </v-flex>
           </v-layout>
           <input style="display:none;" type="submit" ref="submitButton" />
         </v-form>
-      </v-container>
+      </v-card-text>
       <v-divider></v-divider>
       <v-card-actions class="pa-3">
         <v-btn flat color="primary">More</v-btn>
@@ -347,10 +438,10 @@
 <script>
 import {mapState} from "vuex";
 
-import TaskType from "../constants/TaskType.js";
-import TaskPriority from "../constants/TaskPriority.js";
+import TaskType from "../../constants/TaskType.js";
+import TaskPriority from "../../constants/TaskPriority.js";
 
-import request from '../services/request.js';
+import request from '../../services/request.js';
 
 export default {
   data(){
@@ -360,10 +451,11 @@ export default {
       default_rules: [
         v => !!v || "This field is required"
       ],
+      isLoadingProject: false,
+      selected_project: null,
+      project_items: [],
+      search_project: null,
 
-      prefix_items: [
-        "NA"
-      ],
       title: '',
       selected_task_type: TaskType.TASK.toString(),
       selected_priority: TaskPriority.MEDIUM,
@@ -421,6 +513,9 @@ export default {
       assignee_task: null,
       assignee_items: [],
       search_assignee: null,
+
+      deadline: null,
+      select_deadline: false,
       label: '',
       descriptions: ''
     }
@@ -454,6 +549,7 @@ export default {
           return false;
         }
         let payload = {
+          project: this.selected_project,
           title: this.title,
           prefix_branch: this.selected_prefix,
           branch: this.branch,
@@ -461,6 +557,7 @@ export default {
           priority: this.selected_priority,
           assignee: this.assignee_task,
           label: this.label,
+          deadline: this.deadline,
           descriptions: this.descriptions
         }
         if (this.task_type == TaskType.SUB_TASK){
@@ -475,6 +572,11 @@ export default {
           console.log(err);
         })
       }
+    },
+    formatDate(date){
+      if (!date) return;
+      let [year, month, day] = date.split('-');
+      return `${day}/${month}/${year}`;
     }
   },
   watch: {
@@ -500,12 +602,26 @@ export default {
       .finally(response => {
         this.isLoadingAssignee = false;
       })
+    },
+    search_project(val){
+      if (this.project_items.length) return;
+      this.isLoadingProject = true;
+      request.get('project/')
+      .then(response => {
+        this.project_items = response.data;
+      })
+      .finally(() => {
+        this.isLoadingProject = false;
+      })
     }
   },
   computed: {
     ...mapState([
       'isCreatingTask'
-    ])
+    ]),
+    formattedDate(){
+      return this.formatDate(this.deadline);
+    }
   }
 }
 </script>
@@ -551,28 +667,16 @@ export default {
   height: calc(2.2625rem + 2px);
   /* line-height: 1.5; */
   padding: .375rem .75rem;
-  transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
-  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
   width: 100%;
 }
 
 form.create-task-form .v-text-field--solo .v-input__slot {
   background-color: #F4F5F7 !important;
   border: 1px solid #e4e7ea;
-  min-height: 42px;
+  min-height: 39px;
+  transition: .05s ease-in-out;
 }
-
-form.create-task-form .v-text-field__details {
-  margin: 0 !important;
-}
-
-label.input-label {
-  color: #5e6c84;
-  font-weight: bold;
-  margin-left: 1px;
-}
-span.required {
-  color: #ff5252;
+form.create-task-form .v-text-field--solo .v-input__slot:hover {
+  background-color: rgb(240, 241, 243) !important;
 }
 </style>

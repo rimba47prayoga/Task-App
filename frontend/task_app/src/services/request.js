@@ -34,6 +34,6 @@ export default {
     return axios.put(url, data);
   },
   redirect(to) {
-    return (window.location.href = to);
+    return router.push(to)
   }
 };

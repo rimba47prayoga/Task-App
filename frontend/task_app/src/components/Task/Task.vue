@@ -16,6 +16,7 @@
             <v-card-actions class="pa-0 pl-2 pr-2">
               <v-icon v-bind:class="class_task_type">{{ getTaskTypeIcon() }}</v-icon>
               <v-icon v-bind:class="class_priority">{{ getTaskPriorityIcon() }}</v-icon>
+              {{ task.deadline }}
             </v-card-actions>
             <v-card-actions class="pa-0 pl-2 pr-2 pt-2">
               <v-tooltip
@@ -32,7 +33,7 @@
               </v-tooltip>
               <!-- TODO: handle it if user has avatar image -->
 
-              <div class="grey--text">{{ task.prefix_branch + '-' + task.branch }}</div>
+              <div class="grey--text">{{ task.branch }}</div>
             </v-card-actions>
           </v-card>
         </v-hover>
@@ -41,8 +42,8 @@
 </template>
 
 <script>
-import TaskPriority from "../constants/TaskPriority.js";
-import TaskType from "../constants/TaskType.js";
+import TaskPriority from "../../constants/TaskPriority.js";
+import TaskType from "../../constants/TaskType.js";
 
 export default {
   data() {

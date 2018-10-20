@@ -22,7 +22,12 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     assignee = SimpleUserSerializer(allow_null=True)
+    branch = serializers.SerializerMethodField()
+    deadline = serializers.DateField(format='DD/MM/YYYY')
     created_by = SimpleUserSerializer(allow_null=True, required=False)
+
+    def get_branch(self, obj):
+        return f'{obj.project.board_name}-{obj.branch}'
 
     class Meta:
         model = Task
@@ -37,8 +42,6 @@ class CreateTaskSerializer(serializers.Serializer):
     task_type = serializers.ChoiceField(choices=TaskChoices.TASK_TYPE_CHOICES)
     label = serializers.CharField(required=False, allow_blank=True)
     priority = serializers.ChoiceField(choices=TaskChoices.PRIORITY_CHOICES)
-    prefix_branch = serializers.CharField()
-    branch = serializers.CharField()
     assignee = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         required=False,
@@ -52,6 +55,7 @@ class CreateTaskSerializer(serializers.Serializer):
         queryset=Task.objects.all(),
         required=False
     )
+    deadline = serializers.DateField()
     descriptions = serializers.CharField(required=False, allow_blank=True)
 
     def create(self, validated_data):
@@ -66,8 +70,9 @@ class CreateTaskSerializer(serializers.Serializer):
 
     class Meta:
         fields = [
-            'title', 'task_type', 'label', 'priority', 'prefix_branch',
-            'branch', 'assignee', 'progress', 'parent', 'descriptions'
+            'title', 'task_type', 'label', 'priority',
+            'assignee', 'progress', 'parent', 'deadline',
+            'descriptions'
         ]
 
 

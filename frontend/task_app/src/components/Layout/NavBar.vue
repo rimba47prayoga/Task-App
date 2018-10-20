@@ -9,7 +9,7 @@
     >
       <v-toolbar-title style="width: 260px" class="ml-1 pl-2 mr-4">
         <v-toolbar-side-icon @click.stop="setSidebar()"></v-toolbar-side-icon>
-        <img src="@/assets/task_icon.png" class="task_icon" />
+          <img src="@/assets/task_icon.png" class="task_icon" />
         <span class="hidden-sm-and-down ml-3">Task App</span>
       </v-toolbar-title>
 
@@ -29,6 +29,8 @@
         solo-inverted
         :menu-props="{zIndex:'10000000'}"
         id="search_autocomplete"
+        @change="change"
+        return-object
       >
       </v-autocomplete>
       <v-spacer></v-spacer>
@@ -66,6 +68,14 @@ export default {
   methods: {
     setSidebar(){
       this.$store.commit('setSidebar', !this.$store.getters.sidebar)
+    },
+    change(val){
+      var q = window.encodeURIComponent(val.title);
+      this.$router.push({
+        query: {
+          q: q
+        }
+      })
     }
   },
   watch: {
@@ -95,18 +105,22 @@ export default {
       })
     }
   },
-  mounted(){
-    let search = document.getElementById('search_autocomplete');
-    search.addEventListener('keydown', (event) => {
-      if (event.keyCode == 13){
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        console.log(event);
-        return false;
-      }
-    })
-  }
+  // mounted(){
+  //   let search = document.getElementById('search_autocomplete');
+  //   search.addEventListener('keydown', (event) => {
+  //     if (event.keyCode == 13){
+  //       event.preventDefault();
+  //       event.stopPropagation();
+  //       event.stopImmediatePropagation();
+  //       this.$router.push({
+  //         query: {
+  //           q: this.search
+  //         }
+  //       })
+  //       return false;
+  //     }
+  //   })
+  // }
 }
 </script>
 

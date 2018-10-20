@@ -25,40 +25,30 @@
         </v-list-tile>
 
         <v-card>
-          <v-list>
+          <v-list v-for="project in projects" :key="project.id">
             <v-list-tile avatar>
               <v-list-tile-avatar>
                 <img class="project_icon" src="@/assets/project_icon.png" />
               </v-list-tile-avatar>
 
               <v-list-tile-content>
-                <v-list-tile-title>Project Name</v-list-tile-title>
-                <v-list-tile-sub-title>Software Project</v-list-tile-sub-title>
+                <v-list-tile-title>{{ project.name }}</v-list-tile-title>
+                <v-list-tile-sub-title>{{ project.project_type }}</v-list-tile-sub-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list>
-          <v-divider></v-divider>
+
           <v-list>
-            <v-list-tile avatar>
+            <v-list-tile avatar @click="redirect('/project/create-project')">
               <v-list-tile-avatar>
-                <img class="project_icon" src="@/assets/project_icon.png" />
+                <v-icon>add</v-icon>
               </v-list-tile-avatar>
 
               <v-list-tile-content>
-                <v-list-tile-title>Project Name</v-list-tile-title>
-                <v-list-tile-sub-title>Software Project</v-list-tile-sub-title>
+                <v-list-tile-title>Create Project</v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list>
-
-          <v-divider></v-divider>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-
-            <v-btn flat @click="menu = false">Cancel</v-btn>
-            <v-btn color="primary" flat @click="menu = false">Save</v-btn>
-          </v-card-actions>
         </v-card>
       </v-menu>
     </div>
@@ -66,7 +56,9 @@
     <template v-for="item in items">
       <v-list-tile
         :key="item.text"
-        @click="redirect(item.link)"
+        @click="item.link
+        ? redirect(item.link)
+        : item.event ? item.event() : ''"
         :class="currentRoute.name == item.name ? 'active': ''"
       >
         <v-tooltip right z-index="1000000">
@@ -115,6 +107,8 @@ export default {
       menu: false,
       message: false,
       hints: true,
+      isCreateProject: false,
+      projects: [],
       items: [
         {
           icon: "dashboard",
@@ -129,7 +123,7 @@ export default {
         {
           icon: "library_books",
           text: "Tasks",
-          link: "/task/",
+          link: "/task/list",
           name: "task"
         },
         {
@@ -143,6 +137,7 @@ export default {
         {
           icon: "add",
           text: "Create Task",
+          event: this.createTask
         },
         { icon: "settings", text: "Settings" },
         { icon: "chat_bubble", text: "Send feedback" },
@@ -154,20 +149,30 @@ export default {
   },
   methods: {
     redirect(to){
-      return this.$router.push(to);
+      return request.redirect(to);
     },
     unSetMiniVariant(){
       this.$emit('unset-mini-variant');
     },
     setMiniVariant(){
       this.$emit('set-mini-variant');
+    },
+    createTask(){
+      this.$store.commit(
+        'showDialogCreateTask', true
+      );
     }
   },
   created(){
-    request.get('project/')
-    .then(response => {
-
-    });
+    let projects = localStorage.getItem('projects')
+    if (projects == null) {
+      return;
+    }
+    this.projects = projects;
+    // request.get('project/')
+    // .then(response => {
+    //   this.projects = response.data;
+    // });
   },
   computed: {
     ...mapState([

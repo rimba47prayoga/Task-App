@@ -65,9 +65,9 @@
       class="scroll-y pa-0">
 
       <v-layout
-      v-scroll:#scroll-target=""
-      align-content-space-between justify-start row fill-height scroll-y
-      >
+        v-scroll:#scroll-target=""
+        align-content-space-between justify-start row fill-height scroll-y
+        >
         <!-- Loading component -->
         <v-flex xs12 v-if="isLoading">
           <v-progress-circular
@@ -143,7 +143,7 @@
         slot="activator"
         @click="showDialogCreateTask()"
       >
-      <v-icon>add</v-icon>
+        <v-icon>add</v-icon>
       </v-btn>
       <span>Add new task</span>
       </v-tooltip>
@@ -197,12 +197,12 @@ import Task from "./Task";
 import CreateTask from "./CreateTask";
 
 // constants
-import TaskProgress from "../constants/TaskProgress.js";
-import TaskType from "../constants/TaskType.js";
-import TaskPriority from "../constants/TaskPriority.js";
+import TaskProgress from "../../constants/TaskProgress.js";
+import TaskType from "../../constants/TaskType.js";
+import TaskPriority from "../../constants/TaskPriority.js";
 
 // services & utils
-import request from "../services/request.js";
+import request from "../../services/request.js";
 
 export default {
   components: {
@@ -261,12 +261,13 @@ export default {
     showDialogCreateTask(){
       this.$store.commit(
         'showDialogCreateTask',
-        !this.$store.getters.isCreatingTask
+        true
       )
     },
     reloadTask(){
       this.isLoading = true;
-      request.get('task/')
+      var url = 'task/list';
+      request.get(url)
       .then(response => {
         let data = response.data;
         if (!data.length) {
@@ -286,8 +287,10 @@ export default {
             this.tasks.done.push(obj);
           }
         })
+      })
+      .finally(() => {
         this.isLoading = false;
-      });
+      })
     },
 
     /** get this.task[progress] (get tasks key by progress) in component data
@@ -513,6 +516,10 @@ export default {
   },
   created(){
     this.reloadTask();
+  },
+  beforeRouteUpdate(to, from, next){
+    console.log(to)
+    next();
   }
 };
 </script>
@@ -548,9 +555,6 @@ export default {
 .bg-none.v-card.theme--light {
   background: none;
   box-shadow: none !important;
-}
-.white-grey-blue {
-  background: #F4F5F7 !important;
 }
 .relative {
   position: relative;

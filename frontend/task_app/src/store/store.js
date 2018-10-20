@@ -14,7 +14,7 @@ export const store = new Vuex.Store({
 
     // user handler
     token: localStorage.getItem('token') || '',
-    user: JSON.parse(localStorage.getItem('user')) || {},
+    user: JSON.parse(localStorage.getItem('__user')) || {},
     isLoggedIn: VueCookies.get('__isLn') == "1",
     currentRoute: {}
   },

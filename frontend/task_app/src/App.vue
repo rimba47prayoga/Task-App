@@ -6,17 +6,22 @@
       <v-content>
         <v-layout align-content-space-between justify-start>
         <!-- <div style="font-size: 25px;line-height: -moz-block-height;" class="mr-2"></div> -->
-        <v-breadcrumbs :large="true" divider="-" class="pr-4 pl-4 ma-2">
+        <v-breadcrumbs
+          v-if="breadcrumbs.length"
+          :large="true"
+          divider="-"
+          class="pr-4 pl-4 ma-2"
+        >
           <v-breadcrumbs-item style="font-size: 25px">
-            {{ lastPath() }}
+            {{ basePath() }}
           </v-breadcrumbs-item>
           <v-breadcrumbs-item
             v-for="(item, index) in breadcrumbs"
             :key="index"
-            :disabled="true"
+            :disabled="index == breadcrumbs.length - 1"
           >
-            <v-icon v-if="item.icon">{{ item.icon }}</v-icon>
-            {{ item.name }}
+            <v-icon v-if="item == 'home'">home</v-icon>
+            {{ item != 'home' ? item: '' }}
           </v-breadcrumbs-item>
         </v-breadcrumbs>
         </v-layout>
@@ -42,26 +47,21 @@ export default {
     SideBar
   },
   methods: {
-    lastPath(){
-      return capitalize(this.$route.name)
+    basePath(){
+      if (this.breadcrumbs){
+        return capitalize(this.breadcrumbs[1])
+      }
+      return []
     }
   },
   computed: {
     breadcrumbs(){
-      let route_name = this.$route.name;
-      if (route_name == null){
-        route_name = this.$router.currentRoute.name;
+      var currentRoute = this.$route;
+      if (typeof currentRoute.meta.breadcrumbs != "undefined"){
+        return ['home', ...currentRoute.meta.breadcrumbs];
       }
-      return [
-        {
-          icon: 'home',
-          name: ''
-        },
-        {
-          icon: null,
-          name: capitalize(route_name)
-        }
-      ]
+
+      return false;
     }
   }
 };
@@ -98,7 +98,17 @@ aside .v-navigation-drawer__border {
 }
 
 aside .v-navigation-drawer__border:hover{
+  transition: ease-in-out .3s;
   border-right: 2px solid #1565c0 !important;
   cursor: col-resize;
+}
+
+label.input-label {
+  color: #5e6c84;
+  font-weight: bold;
+  margin-left: 1px;
+}
+span.required {
+  color: #ff5252;
 }
 </style>

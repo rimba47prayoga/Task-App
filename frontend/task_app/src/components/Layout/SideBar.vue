@@ -53,5 +53,7 @@ export default {
 </script>
 
 <style>
-
+.white-grey-blue {
+  background: #F4F5F7 !important;
+}
 </style>

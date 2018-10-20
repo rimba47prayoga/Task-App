@@ -5,6 +5,7 @@ import { store } from '../store/store';
 import Login from '@/components/User/Login';
 import AuthService from '../services/auth-service';
 import 'nprogress/nprogress.css';
+import request from '../services/request';
 
 Vue.use(Router);
 
@@ -19,14 +20,26 @@ let router = new Router({
     {
       path: '',
       name: 'dashboard',
-      component: lazyLoad('HelloWorld')
+      component: lazyLoad('Dashboard'),
+      meta: {
+        breadcrumbs: ['dashboard']
+      }
     },
     {
-      path: '/task',
+      path: '/task/list',
       name: 'task',
-      component: lazyLoad('TaskList'),
+      component: lazyLoad('Task/TaskList'),
       meta: {
-        requireAuth: true
+        requireAuth: true,
+        breadcrumbs: ['task', 'list']
+      }
+    },
+    {
+      path: '/project/create-project',
+      name: 'Create Project',
+      component: lazyLoad('Project/CreateProject'),
+      meta: {
+        breadcrumbs: ['project', 'create project']
       }
     },
     {
@@ -45,7 +58,7 @@ let router = new Router({
 NProgress.configure({
   showSpinner: false,
   speed: 1000
-})
+});
 
 router.beforeEach((to, _from, next) => {
   NProgress.start();
@@ -59,13 +72,18 @@ router.beforeEach((to, _from, next) => {
         }
       });
     } else {
+      // if (localStorage.getItem('projects') == null) {
+      //   next({
+      //     name: 'dashboard'
+      //   });
+      // }
       next();
     }
   } else if (to.name == 'logout') {
     AuthService.logout();
     next({
       path: '/login'
-    })
+    });
   } else {
     next();
   }
@@ -74,6 +92,16 @@ router.beforeEach((to, _from, next) => {
 router.afterEach((to, from) => {
   store.dispatch('setRoute', to);
   NProgress.done();
-})
+  // if (localStorage.getItem('projects') == null) {
+  //   let blocked_url = ['task']
+  //   if (blocked_url.indexOf(to.name) > -1) {
+  //     request.get('project/').then(response => {
+  //       if (!response.data.length) {
+  //         router.push('/');
+  //       }
+  //     });
+  //   }
+  // }
+});
 
 export default router;

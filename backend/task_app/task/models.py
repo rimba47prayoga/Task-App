@@ -37,7 +37,7 @@ class Task(BaseModel):
         blank=True
     )
 
-    deadline = models.DateTimeField()
+    deadline = models.DateField()
     descriptions = models.TextField(null=True, blank=True)
     
     objects = TaskManager()

@@ -21,6 +21,8 @@ class CreateTaskService(BaseService):
             task.assignee = assignee
         if task_type == TaskChoices.SUB_TASK:
             task.parent = self.payload.get('parent')  # it must be instance
+
+        task.deadline = self.payload.get('deadline')
         task.descriptions = self.payload.get('descriptions')
         task.created_by = self.payload.get('created_by')
         task.save()
