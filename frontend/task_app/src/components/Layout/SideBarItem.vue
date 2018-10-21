@@ -5,11 +5,10 @@
       <v-menu
         v-model="menu"
         absolute
-        :close-on-content-click="false"
         :nudge-width="300"
         offset-x
       >
-        <v-list-tile class="mb-3 mt-3" slot="activator">
+        <v-list-tile ripple class="mb-3 mt-3" slot="activator">
           <v-tooltip right z-index="1000000">
             <v-list-tile-action slot="activator">
               <img class="project_icon" src="@/assets/project_icon.png" />
@@ -20,26 +19,33 @@
             <v-list-tile-title style="font-size:17px;">
               {{ selectedProject.name }}
             </v-list-tile-title>
-            <span style="font-size: 12px; color: #616161;">{{ selectedProject.project_type }}</span>
+            <span style="font-size: 12px; color: #616161;">{{ selectedProject.project_type_display }}</span>
           </v-list-tile-content>
         </v-list-tile>
 
         <v-card>
-          <v-list v-for="project in projects" :key="project.id">
-            <v-list-tile avatar>
+          <v-list
+            v-for="project in projects"
+            :key="project.id"
+          >
+            <v-list-tile
+              avatar
+              ripple
+              @click="setProject(project)"
+              :class="project.is_selected ? 'active' : ''"
+            >
               <v-list-tile-avatar>
                 <img class="project_icon" src="@/assets/project_icon.png" />
               </v-list-tile-avatar>
-
               <v-list-tile-content>
                 <v-list-tile-title>{{ project.name }}</v-list-tile-title>
-                <v-list-tile-sub-title>{{ project.project_type }}</v-list-tile-sub-title>
+                <v-list-tile-sub-title>{{ project.project_type_display }}</v-list-tile-sub-title>
               </v-list-tile-content>
             </v-list-tile>
           </v-list>
 
           <v-list>
-            <v-list-tile avatar @click="redirect('/project/create-project')">
+            <v-list-tile ripple avatar @click="redirect('/project/create-project')">
               <v-list-tile-avatar>
                 <v-icon>add</v-icon>
               </v-list-tile-avatar>
@@ -60,6 +66,7 @@
         ? redirect(item.link)
         : item.event ? item.event() : ''"
         :class="currentRoute.name == item.name ? 'active': ''"
+        ripple
       >
         <v-tooltip right z-index="1000000">
           <v-list-tile-action slot="activator" class="pa-2">
@@ -150,23 +157,43 @@ export default {
       this.$store.commit(
         'showDialogCreateTask', true
       );
-    }
+    },
+    setProject(project){
+      this.$store.commit('selectProject', project);
+      localStorage.setItem('selected_project', JSON.stringify(project));
+      this.$router.push({
+        name: 'task'
+      });
+      this.realoadProjectList();
+    },
+    realoadProjectList(){
+      var projects = localStorage.getItem('projects');
+      let selected_project = this.$store.getters.selected_project;
+      if (projects == null || !projects) {
+        return;
+      }
+      projects = JSON.parse(projects);
+      projects.map((item, index) => {
+        item.project_type_display = ProjectType.getProjectDisplay(item.project_type);
+        if (selected_project != null){
+          if (item.id == selected_project.id){
+            item.is_selected = true;
+          } else {
+            item.is_selected = false;
+          }
+        } else {
+          item.is_selected = false;
+        }
+      });
+      this.projects = projects;
+      }
   },
   created(){
-    var projects = localStorage.getItem('projects')
-    if (projects == null || !projects) {
-      return;
-    }
-    projects = JSON.parse(projects);
-    projects.map((item, index) => {
-      item.project_type = ProjectType.getProjectDisplay(item.project_type);
-    });
-    this.projects = projects;
+    this.realoadProjectList();
   },
   computed: {
     ...mapState([
-      'currentRoute',
-      'set_project'
+      'currentRoute'
     ]),
     selectedProject(){
       return this.$store.getters.selected_project || {

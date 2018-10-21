@@ -4,4 +4,16 @@ function capitalize (string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export { capitalize }
+function addQueryParam (url, params) {
+  let urls = url.split('?')
+  for (var key in params) {
+    if (urls.length > 1) {
+      urls.push(`&${key}=${params[key]}`);
+    } else {
+      urls.push(`?${key}=${params[key]}`);
+    }
+  }
+  return urls.join('');
+}
+
+export { capitalize, addQueryParam };

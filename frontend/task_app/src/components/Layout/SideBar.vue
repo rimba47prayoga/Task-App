@@ -6,6 +6,7 @@
     app
     :mini-variant="mini_variant"
     stateless
+    hide-overlay
     width="260"
     class="white-grey-blue"
   >

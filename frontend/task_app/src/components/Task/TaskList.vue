@@ -49,6 +49,65 @@
       <v-icon>clear</v-icon>
     </v-btn>
   </v-snackbar>
+
+  <!-- <v-layout row wrap pa-0 mb-0 ml-2 mr-2 mt-2>
+      <div style="color: #616161;" class="headline">
+        {{ $store.getters.selected_project.board_name }} Board
+      </div>
+      <v-flex xs12>
+        <v-flex xs2 class="input-grey mt-2 mb-2">
+          <v-autocomplete
+            v-model="filters.assignee"
+            :items="filters.assignee_items"
+            :loading="filters.isLoadingAssignee"
+            :search-input.sync="filters.search_assignee"
+            hide-no-data
+            hide-details
+            item-text="username"
+            item-value="id"
+            placeholder="Assignee"
+            solo
+            flat
+            class="solo-grey"
+          >
+            <template slot="no-data">
+              <v-list-tile>
+                <v-list-tile-title>
+                  Search for your favorite
+                  <strong>Cryptocurrency</strong>
+                </v-list-tile-title>
+              </v-list-tile>
+            </template>
+
+            <template
+              slot="selection"
+              slot-scope="{ item, selected }"
+            >
+              <v-icon
+              v-if="item.avatar == null"
+              class="mr-2"
+              style="color: #1565c0 !important"
+              >account_circle</v-icon>
+              {{ item.username }}
+            </template>
+
+            <template
+              slot="item"
+              slot-scope="{ item, tile }"
+            >
+              <v-icon
+              v-if="item.avatar == null"
+              class="mr-2"
+              style="color:#1565c0 !important">account_circle</v-icon>
+              <v-list-tile-content>
+                <v-list-tile-title v-text="item.username"></v-list-tile-title>
+              </v-list-tile-content>
+            </template>
+          </v-autocomplete>
+        </v-flex>
+      </v-flex>
+  </v-layout> -->
+
   <v-container pa-0 style="max-width: unset;">
     <v-layout class="align-start justify-start row fill-height progress-display pb-4">
       <v-flex
@@ -67,6 +126,7 @@
       <v-layout
         v-scroll:#scroll-target=""
         align-content-space-between justify-start row fill-height scroll-y
+        style="min-height: 200px"
         >
         <!-- Loading component -->
         <v-flex xs12 v-if="isLoading">
@@ -192,6 +252,7 @@
 
 <script>
 // components
+import { mapState } from 'vuex';
 import draggable from 'vuedraggable';
 import Task from "./Task";
 import CreateTask from "./CreateTask";
@@ -203,6 +264,9 @@ import TaskPriority from "../../constants/TaskPriority.js";
 
 // services & utils
 import request from "../../services/request.js";
+import { addQueryParam } from '../../utils/common.js';
+
+// css
 import '../../styles/task-list.css';
 
 export default {
@@ -241,7 +305,13 @@ export default {
       right: true,
       bottom: true,
       left: false,
-      transition: 'slide-y-reverse-transition'
+      transition: 'slide-y-reverse-transition',
+      filters: {
+        isLoadingAssignee: false,
+        assignee: null,
+        assignee_items: [],
+        search_assignee: null
+      }
     };
   },
   methods: {
@@ -268,6 +338,14 @@ export default {
     reloadTask(){
       this.isLoading = true;
       var url = 'task/list';
+      let selected_project = this.$store.getters.selected_project;
+      if (selected_project == null){
+        this.isLoading = false;
+        return;
+      }
+      url = addQueryParam(url, {
+        project: selected_project.id
+      });
       request.get(url)
       .then(response => {
         let data = response.data;
@@ -275,6 +353,11 @@ export default {
           this.isLoading = false;
           return;
         }
+        this.tasks.todo = [];
+        this.tasks.in_progress = [];
+        this.tasks.in_repo = [];
+        this.tasks.test = [];
+        this.tasks.done = [];
         data.map((obj, index) => {
           if (obj.progress == TaskProgress.TODO){
             this.tasks.todo.push(obj);
@@ -335,7 +418,7 @@ export default {
     updateTaskProgress(task_id, progress){
       var tasks = this.getTaskByProgress(progress);
 
-      request.put(`task/${task_id}/update_progress`, {
+      request.put(`task/list/${task_id}/update_progress`, {
         new_progress: progress
       })
       .then(response => {
@@ -359,7 +442,7 @@ export default {
 
     undoMovedTask(){
       let task_id = Number(this.latestDragged.task_id);
-      request.post(`task/${task_id}/undo_progress`)
+      request.post(`task/list/${task_id}/undo_progress`)
       .then(response => {
         let tasks_after_undo = this.getTaskByProgress(Number(response.data.progress)); // tasks after undo
         let tasks_before_undo = this.getTaskByProgress(Number(this.latestDragged.progress));
@@ -497,6 +580,9 @@ export default {
     }
   },
   computed: {
+    ...mapState([
+      'selected_project'
+    ]),
     dragOptions(){
       return {
         animation: 150,
@@ -506,13 +592,13 @@ export default {
       };
     },
     activeFab () {
-        switch (this.tabs) {
-          case 'one': return { 'class': 'purple', icon: 'account_circle' }
-          case 'two': return { 'class': 'red', icon: 'edit' }
-          case 'three': return { 'class': 'green', icon: 'keyboard_arrow_up' }
-          default: return {}
-        }
+      switch (this.tabs) {
+        case 'one': return { 'class': 'purple', icon: 'account_circle' }
+        case 'two': return { 'class': 'red', icon: 'edit' }
+        case 'three': return { 'class': 'green', icon: 'keyboard_arrow_up' }
+        default: return {}
       }
+    }
   },
   created(){
     this.reloadTask();
@@ -520,10 +606,34 @@ export default {
   beforeRouteUpdate(to, from, next){
     console.log(to)
     next();
+  },
+  watch: {
+    /** watcher on set project, it must be reload task by selected project
+     * @param {Object} obj
+     */
+    selected_project(obj){
+      this.reloadTask();
+    },
+    'filters.search_assignee'(val){
+      if (this.filters.assignee_items.length || this.filters.isLoadingAssignee) return;
+      this.filters.isLoadingAssignee = true;
+      request.get('task/list/assignee_task')
+      .then(response => {
+        this.filters.assignee_items = response.data;
+      })
+      .finally(response => {
+        this.filters.isLoadingAssignee = false;
+      })
+    }
   }
 };
 </script>
 
 <style>
-
+.input-grey .v-text-field--solo .v-input__slot {
+  background-color: #F4F5F7 !important;
+  border: 1px solid #e4e7ea;
+  min-height: 39px;
+  transition: .05s ease-in-out;
+}
 </style>

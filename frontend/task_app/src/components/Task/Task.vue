@@ -16,6 +16,7 @@
             <v-card-actions class="pa-0 pl-2 pr-2">
               <v-icon v-bind:class="class_task_type">{{ getTaskTypeIcon() }}</v-icon>
               <v-icon v-bind:class="class_priority">{{ getTaskPriorityIcon() }}</v-icon>
+              <v-spacer></v-spacer>
               {{ task.deadline }}
             </v-card-actions>
             <v-card-actions class="pa-0 pl-2 pr-2 pt-2">

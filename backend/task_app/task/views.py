@@ -9,7 +9,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from core.exceptions import TaskAppError
+from core.exceptions import TaskAppError, TaskAppErrorCode
 from .models import Task
 from .serializers import (
     TaskSerializer, SimpleUserSerializer, CreateTaskSerializer,
@@ -25,6 +25,13 @@ class TaskViewSet(generics.ListAPIView,
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
 
+    def get_queryset(self):
+        request = self.request
+        project = request.query_params.get('project')
+        if project:
+            return self.queryset.filter(project=project)
+        return self.queryset
+
     def get_serializer_class(self):
         if self.action == 'assignee_task':
             return SimpleUserSerializer
@@ -35,6 +42,12 @@ class TaskViewSet(generics.ListAPIView,
         return super(TaskViewSet, self).get_serializer_class()
 
     def list(self, request, *args, **kwargs):
+        project = request.query_params.get('project')
+        if not project:
+            raise TaskAppError(
+                error_code=TaskAppErrorCode.NOT_SELECT_PROJECT,
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
         import time
         time.sleep(1)
         return super(TaskViewSet, self).list(request, *args, **kwargs)

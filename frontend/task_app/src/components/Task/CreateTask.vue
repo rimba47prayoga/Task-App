@@ -35,8 +35,6 @@
                 v-model="selected_project"
                 :items="project_items"
                 :rules="default_rules"
-                :search-input.sync="search_project"
-                :loading="isLoadingProject"
                 required
                 hide-no-data
                 item-text="name"
@@ -451,11 +449,8 @@ export default {
       default_rules: [
         v => !!v || "This field is required"
       ],
-      isLoadingProject: false,
       selected_project: null,
       project_items: [],
-      search_project: null,
-
       title: '',
       selected_task_type: TaskType.TASK.toString(),
       selected_priority: TaskPriority.MEDIUM,
@@ -564,7 +559,7 @@ export default {
           payload.parent_task = this.parent_task;
         }
 
-        request.post('task/', payload)
+        request.post('task/list', payload)
         .then(response => {
           this.closeDialogCreateTask();
           this.$emit('created-task');
@@ -584,7 +579,7 @@ export default {
       if (this.parent_task_items.length) return;
       if (this.isLoadingParentTask) return;
       this.isLoadingParentTask = true;
-      request.get('task/parent_task')
+      request.get('task/list/parent_task')
       .then(response => {
         this.parent_task_items = response.data;
       })
@@ -595,7 +590,7 @@ export default {
     search_assignee(val){
       if (this.assignee_items.length || this.isLoadingAssignee) return;
       this.isLoadingAssignee = true;
-      request.get('task/assignee_task')
+      request.get('task/list/assignee_task')
       .then(response => {
         this.assignee_items = response.data;
       })
@@ -603,16 +598,16 @@ export default {
         this.isLoadingAssignee = false;
       })
     },
-    search_project(val){
-      if (this.project_items.length) return;
-      this.isLoadingProject = true;
-      request.get('project/')
-      .then(response => {
-        this.project_items = response.data;
-      })
-      .finally(() => {
-        this.isLoadingProject = false;
-      })
+    isCreatingTask(val){
+      if (val){
+        var projects = localStorage.getItem('projects');
+        if (projects == null || projects == "[]"){
+          return;
+        }
+        projects = JSON.parse(projects);
+        this.project_items = projects;
+        this.selected_project = this.$store.getters.selected_project.id;
+      }
     }
   },
   computed: {

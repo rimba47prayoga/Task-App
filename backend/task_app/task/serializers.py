@@ -23,7 +23,7 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     assignee = SimpleUserSerializer(allow_null=True)
     branch = serializers.SerializerMethodField()
-    deadline = serializers.DateField(format='DD/MM/YYYY')
+    deadline = serializers.DateField(format='%d/%m/%Y')
     created_by = SimpleUserSerializer(allow_null=True, required=False)
 
     def get_branch(self, obj):

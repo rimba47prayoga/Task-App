@@ -18,3 +18,4 @@ class TaskAppError(APIException):
 class TaskAppErrorCode(object):
     USER_NOT_REGISTERED = 'user-not-registered'
     INCORRECT_PASSWORD = 'incorrect-password'
+    NOT_SELECT_PROJECT = 'not-select-project'

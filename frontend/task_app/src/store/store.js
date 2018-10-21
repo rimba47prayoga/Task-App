@@ -15,9 +15,8 @@ export const store = new Vuex.Store({
     // user handler
     token: localStorage.getItem('token') || '',
     user: JSON.parse(localStorage.getItem('__user')) || {},
-    isLoggedIn: VueCookies.get('__isLn') == "1",
+    isLoggedIn: VueCookies.get('__isLn') == '1',
     currentRoute: {},
-    set_project: false,
     selected_project: localStorage.getItem('selected_project')
   },
   mutations: {
@@ -29,20 +28,19 @@ export const store = new Vuex.Store({
     },
 
     // user handler
-    auth_success (state, token, user) {
+    auth_success(state, token, user) {
       state.token = token;
       state.user = user;
       state.isLoggedIn = true;
     },
-    logout (state) {
+    logout(state) {
       state.isLoggedIn = false;
     },
-    setRoute (state, route) {
+    setRoute(state, route) {
       state.currentRoute = route;
     },
-    setProject (state, data) {
-      state.set_project = true;
-      state.selected_project = data;
+    selectProject (state, project) {
+      state.selected_project = project;
     }
   },
   actions: {
@@ -68,15 +66,14 @@ export const store = new Vuex.Store({
         });
     },
 
-    logout ({ commit }) {
+    logout({ commit }) {
       commit('logout');
     },
-    setRoute ({ commit }, route) {
+    setRoute({ commit }, route) {
       commit('setRoute', route);
     },
-
-    setProject ({ commit }, data) {
-      commit('setProject', data)
+    selectProject ({ commit }, project) {
+      commit('selectProject', project);
     }
   },
   getters: {
@@ -92,10 +89,14 @@ export const store = new Vuex.Store({
     currentRoute: ({ currentRoute }) => currentRoute,
     selected_project: ({ selected_project }) => {
       if (selected_project != null) {
-        let project = JSON.parse(selected_project);
+        let project = selected_project;
+        if (typeof project == "string") {
+          project = JSON.parse(selected_project);
+        }
         project.project_type = ProjectType.getProjectDisplay(project.project_type);
         return project;
       }
+      return null;
     }
   }
 });
