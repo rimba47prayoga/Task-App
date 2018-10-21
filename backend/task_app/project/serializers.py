@@ -7,4 +7,5 @@ class TaskProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TaskProject
-        fields = '__all__'
+        fields = ['id', 'name', 'board_name', 'project_type', 'created_by',
+                  'created_date']

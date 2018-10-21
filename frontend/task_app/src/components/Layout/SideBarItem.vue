@@ -14,13 +14,13 @@
             <v-list-tile-action slot="activator">
               <img class="project_icon" src="@/assets/project_icon.png" />
             </v-list-tile-action>
-            <span>Project Name</span>
+            <span>{{ selectedProject.name }}</span>
           </v-tooltip>
           <v-list-tile-content>
             <v-list-tile-title style="font-size:17px;">
-              Project Name
+              {{ selectedProject.name }}
             </v-list-tile-title>
-            <span style="font-size: 12px; color: #616161;">Software Project</span>
+            <span style="font-size: 12px; color: #616161;">{{ selectedProject.project_type }}</span>
           </v-list-tile-content>
         </v-list-tile>
 
@@ -76,19 +76,10 @@
     </template>
     <div class="bottom-list">
       <v-btn
-        v-if="mini_variant"
-        icon
-        @click.stop="unSetMiniVariant()"
-      >
-        <v-icon>chevron_right</v-icon>
-      </v-btn>
-      <v-btn
-        v-else
-        icon
+        id="set_mini_variant"
         @click.stop="setMiniVariant()"
-        style="margin-right: 20px;"
+        style="display: none;"
       >
-        <v-icon>chevron_left</v-icon>
       </v-btn>
     </div>
   </v-list>
@@ -96,7 +87,8 @@
 
 <script>
 import request from '../../services/request.js';
-import { mapstate, mapState } from 'vuex';
+import { mapState } from 'vuex';
+import ProjectType from '../../constants/ProjectType.js';
 
 export default {
   props: {
@@ -151,9 +143,6 @@ export default {
     redirect(to){
       return request.redirect(to);
     },
-    unSetMiniVariant(){
-      this.$emit('unset-mini-variant');
-    },
     setMiniVariant(){
       this.$emit('set-mini-variant');
     },
@@ -164,20 +153,34 @@ export default {
     }
   },
   created(){
-    let projects = localStorage.getItem('projects')
-    if (projects == null) {
+    var projects = localStorage.getItem('projects')
+    if (projects == null || !projects) {
       return;
     }
+    projects = JSON.parse(projects);
+    projects.map((item, index) => {
+      item.project_type = ProjectType.getProjectDisplay(item.project_type);
+    });
     this.projects = projects;
-    // request.get('project/')
-    // .then(response => {
-    //   this.projects = response.data;
-    // });
   },
   computed: {
     ...mapState([
-      'currentRoute'
+      'currentRoute',
+      'set_project'
     ]),
+    selectedProject(){
+      return this.$store.getters.selected_project || {
+        name: 'Project Name',
+        project_type: 'Software Project'
+      }
+    }
+  },
+  mounted(){
+    let border = document.querySelector('aside .v-navigation-drawer__border');
+    let btn_set = document.getElementById('set_mini_variant');
+    border.addEventListener('click', () => {
+      btn_set.click();
+    })
   }
 }
 </script>

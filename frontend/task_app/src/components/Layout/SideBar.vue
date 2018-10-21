@@ -11,8 +11,7 @@
   >
     <side-bar-item
       v-bind:mini_variant="mini_variant"
-      v-on:set-mini-variant="mini_variant = true"
-      v-on:unset-mini-variant="mini_variant = false"
+      v-on:set-mini-variant="mini_variant = !mini_variant"
     ></side-bar-item>
   </v-navigation-drawer>
 </template>

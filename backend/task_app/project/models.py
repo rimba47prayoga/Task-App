@@ -14,3 +14,6 @@ class TaskProject(BaseModel):
     board_name = models.CharField(max_length=10)
     logo = models.ImageField(null=True, blank=True)
     descriptions = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name

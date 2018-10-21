@@ -70,6 +70,12 @@ export default {
       this.$store.commit('setSidebar', !this.$store.getters.sidebar)
     },
     change(val){
+      if (typeof val == "undefined") {
+        this.$router.push({
+          query: {}
+        });
+        return;
+      }
       var q = window.encodeURIComponent(val.title);
       this.$router.push({
         query: {
@@ -80,6 +86,7 @@ export default {
   },
   watch: {
     search(val){
+
       if(this.recent_search.indexOf(val) > -1){
         let recent_word = this.cache_result.filter((item, index) => {
           return item.key == val;
@@ -104,23 +111,7 @@ export default {
         this.loading_search = false;
       })
     }
-  },
-  // mounted(){
-  //   let search = document.getElementById('search_autocomplete');
-  //   search.addEventListener('keydown', (event) => {
-  //     if (event.keyCode == 13){
-  //       event.preventDefault();
-  //       event.stopPropagation();
-  //       event.stopImmediatePropagation();
-  //       this.$router.push({
-  //         query: {
-  //           q: this.search
-  //         }
-  //       })
-  //       return false;
-  //     }
-  //   })
-  // }
+  }
 }
 </script>
 

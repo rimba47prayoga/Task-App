@@ -1,0 +1,97 @@
+.center-content{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.flex.w-19 {
+  -ms-flex-preferred-size: 16.666666666666664%;
+  flex-basis: 19%;
+  -webkit-box-flex: 0;
+  -ms-flex-positive: 0;
+  flex-grow: 0;
+  max-width: 19%;
+  width: 19%;
+}
+.flex.m-5px {
+  margin: 0 5px 0 5px;
+}
+.flex.no-box-shadow {
+  box-shadow: none;
+}
+.flex.no-box-shadow > div {
+  box-shadow: none;
+}
+.br-3px {
+  border-radius: 3px;
+}
+.bg-none.v-card.theme--light {
+  background: none;
+  box-shadow: none !important;
+}
+.relative {
+  position: relative;
+}
+.progress-display {
+  background: #fff;
+}
+.drag-area {
+  min-width: 50px;
+  min-height: 100%;
+}
+.focus-next-drag, .target-locked {
+  border: 2px dashed #1565c0 !important;
+  border-radius: 3px;
+}
+.focus-next-drag {
+  background: #b3d4fc !important;
+}
+.target-locked {
+  background: #E8F5E9 !important;
+}
+
+.blur-task {
+  width:100%;
+  height:100%;
+  background:rgb(244, 245, 247, 0.7) none repeat scroll 0% 0%;
+  z-index:2;
+  position:absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.v-card.theme--light.white-card.task-choosed {
+  background: #DEEBFF !important;
+}
+
+.v-card.theme--light.white-card:hover {
+  cursor:move;
+  transition: background-color 140ms ease-in-out, border-color 75ms ease-in-out;
+  background: #F4F5F7 !important;
+}
+.hide {
+  display: none !important;
+}
+
+.v-speed-dial {
+    position: absolute;
+  }
+.v-btn--floating {
+    position: relative;
+  }
+.v-btn__content i.v-icon {
+  left: unset !important;
+  top: unset !important;
+  line-height: -moz-block-height;
+}
+
+.task-snackbar {
+  height: 53px;
+  font-size: 15px;
+}
+.task-snackbar .v-snack__content {
+  padding: 10px 24px;
+}
+.task-snackbar .v-snack__wrapper {
+  border-radius: 4px;
+}

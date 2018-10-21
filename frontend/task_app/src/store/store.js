@@ -4,9 +4,9 @@ import VueCookies from 'vue-cookies';
 
 import router from '../router/index';
 import AuthService from '../services/auth-service';
+import ProjectType from '../constants/ProjectType';
 
 Vue.use(Vuex);
-//TODO: Use plugin vuex-persist
 export const store = new Vuex.Store({
   state: {
     sidebar: true,
@@ -16,7 +16,9 @@ export const store = new Vuex.Store({
     token: localStorage.getItem('token') || '',
     user: JSON.parse(localStorage.getItem('__user')) || {},
     isLoggedIn: VueCookies.get('__isLn') == "1",
-    currentRoute: {}
+    currentRoute: {},
+    set_project: false,
+    selected_project: localStorage.getItem('selected_project')
   },
   mutations: {
     setSidebar(state, sidebar) {
@@ -37,6 +39,10 @@ export const store = new Vuex.Store({
     },
     setRoute (state, route) {
       state.currentRoute = route;
+    },
+    setProject (state, data) {
+      state.set_project = true;
+      state.selected_project = data;
     }
   },
   actions: {
@@ -67,6 +73,10 @@ export const store = new Vuex.Store({
     },
     setRoute ({ commit }, route) {
       commit('setRoute', route);
+    },
+
+    setProject ({ commit }, data) {
+      commit('setProject', data)
     }
   },
   getters: {
@@ -79,6 +89,13 @@ export const store = new Vuex.Store({
     isLoggedIn: ({ isLoggedIn }) => isLoggedIn,
     user: ({ user }) => user,
     token: ({ token }) => token,
-    currentRoute: ({ currentRoute }) => currentRoute
+    currentRoute: ({ currentRoute }) => currentRoute,
+    selected_project: ({ selected_project }) => {
+      if (selected_project != null) {
+        let project = JSON.parse(selected_project);
+        project.project_type = ProjectType.getProjectDisplay(project.project_type);
+        return project;
+      }
+    }
   }
 });
