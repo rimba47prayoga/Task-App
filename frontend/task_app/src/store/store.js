@@ -14,10 +14,11 @@ export const store = new Vuex.Store({
 
     // user handler
     token: localStorage.getItem('token') || '',
-    user: JSON.parse(localStorage.getItem('__user')) || {},
+    user: JSON.parse(localStorage.getItem('user')) || {},
     isLoggedIn: VueCookies.get('__isLn') == '1',
     currentRoute: {},
-    selected_project: localStorage.getItem('selected_project')
+    selected_project: localStorage.getItem('selected_project'),
+    search: null
   },
   mutations: {
     setSidebar(state, sidebar) {
@@ -28,9 +29,9 @@ export const store = new Vuex.Store({
     },
 
     // user handler
-    auth_success(state, token, user) {
-      state.token = token;
-      state.user = user;
+    auth_success(state, response) {
+      state.token = response.token;
+      state.user = response.user;
       state.isLoggedIn = true;
     },
     logout(state) {
@@ -39,8 +40,11 @@ export const store = new Vuex.Store({
     setRoute(state, route) {
       state.currentRoute = route;
     },
-    selectProject (state, project) {
+    selectProject(state, project) {
       state.selected_project = project;
+    },
+    setSearch(state, payload) {
+      state.search = payload;
     }
   },
   actions: {
@@ -55,25 +59,26 @@ export const store = new Vuex.Store({
     login({ commit }, payload) {
       AuthService.login(payload.username, payload.password)
         .then(response => {
-          response = response.data;
-          localStorage.setItem('user', JSON.stringify(response.user));
-          AuthService.setToken(response.token);
-          commit('auth_success', response.token, response.user);
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+          AuthService.setToken(response.data.token);
+          commit('auth_success', response.data);
           router.push(localStorage.getItem('nextUrl'));
         })
         .catch(err => {
           console.log(err);
         });
     },
-
     logout({ commit }) {
       commit('logout');
     },
     setRoute({ commit }, route) {
       commit('setRoute', route);
     },
-    selectProject ({ commit }, project) {
+    selectProject({ commit }, project) {
       commit('selectProject', project);
+    },
+    setSearch({ commit }, payload) {
+      commit('setSearch', payload);
     }
   },
   getters: {
@@ -90,13 +95,14 @@ export const store = new Vuex.Store({
     selected_project: ({ selected_project }) => {
       if (selected_project != null) {
         let project = selected_project;
-        if (typeof project == "string") {
+        if (typeof project == 'string') {
           project = JSON.parse(selected_project);
         }
         project.project_type = ProjectType.getProjectDisplay(project.project_type);
         return project;
       }
       return null;
-    }
+    },
+    search: ({ search }) => search
   }
 });

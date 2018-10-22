@@ -120,7 +120,7 @@
     </v-layout>
     <v-container
       id="scroll-target"
-      style="max-height: 490px;max-width: 100%;"
+      style=";max-width: 100%;"
       class="scroll-y pa-0">
 
       <v-layout
@@ -265,6 +265,7 @@ import TaskPriority from "../../constants/TaskPriority.js";
 // services & utils
 import request from "../../services/request.js";
 import { addQueryParam } from '../../utils/common.js';
+import { resizeTaskContainer } from "./utils/task-list.js";
 
 // css
 import '../../styles/task-list.css';
@@ -346,6 +347,13 @@ export default {
       url = addQueryParam(url, {
         project: selected_project.id
       });
+
+      let search = this.$store.getters.search;
+      if (search != null && search != {}){
+        url = addQueryParam(url, {
+          id: search.id
+        })
+      }
       request.get(url)
       .then(response => {
         let data = response.data;
@@ -534,6 +542,10 @@ export default {
       Array.prototype.forEach.call(next_drag_element.drag_area.children, (task, index) => {
         task.classList.remove('hide')
       });
+      let drag_area = document.querySelectorAll('div.drag-area');
+      Array.prototype.forEach.call(drag_area, (elem) => {
+        elem.classList.remove('focus-next-drag');
+      })
     },
 
     start(from){
@@ -581,7 +593,8 @@ export default {
   },
   computed: {
     ...mapState([
-      'selected_project'
+      'selected_project',
+      'search'
     ]),
     dragOptions(){
       return {
@@ -624,7 +637,13 @@ export default {
       .finally(response => {
         this.filters.isLoadingAssignee = false;
       })
+    },
+    search(obj){
+      this.reloadTask();
     }
+  },
+  mounted(){
+    resizeTaskContainer();
   }
 };
 </script>

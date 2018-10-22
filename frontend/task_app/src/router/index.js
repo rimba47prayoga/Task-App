@@ -5,7 +5,6 @@ import { store } from '../store/store';
 import Login from '@/components/User/Login';
 import AuthService from '../services/auth-service';
 import 'nprogress/nprogress.css';
-import request from '../services/request';
 
 Vue.use(Router);
 
@@ -72,11 +71,11 @@ router.beforeEach((to, _from, next) => {
         }
       });
     } else {
-      // if (localStorage.getItem('projects') == null) {
-      //   next({
-      //     name: 'dashboard'
-      //   });
-      // }
+      if (localStorage.getItem('projects') == null) {
+        next({
+          name: 'dashboard'
+        });
+      }
       next();
     }
   } else if (to.name == 'logout') {
@@ -93,16 +92,16 @@ router.beforeEach((to, _from, next) => {
 router.afterEach((to, from) => {
   store.dispatch('setRoute', to);
   NProgress.done();
-  // if (localStorage.getItem('projects') == null) {
-  //   let blocked_url = ['task']
-  //   if (blocked_url.indexOf(to.name) > -1) {
-  //     request.get('project/').then(response => {
-  //       if (!response.data.length) {
-  //         router.push('/');
-  //       }
-  //     });
-  //   }
-  // }
+  if (localStorage.getItem('projects') == null) {
+    let blocked_url = ['task']
+    if (blocked_url.indexOf(to.name) > -1) {
+      request.get('project/').then(response => {
+        if (!response.data.length) {
+          router.push('/');
+        }
+      });
+    }
+  }
 });
 
 export default router;

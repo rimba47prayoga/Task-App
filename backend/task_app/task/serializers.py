@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db import transaction
 from rest_framework import serializers
 
 from project.models import TaskProject
@@ -58,6 +59,7 @@ class CreateTaskSerializer(serializers.Serializer):
     deadline = serializers.DateField()
     descriptions = serializers.CharField(required=False, allow_blank=True)
 
+    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get('request')
         data = validated_data.copy()

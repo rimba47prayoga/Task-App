@@ -25,7 +25,11 @@
           </v-breadcrumbs-item>
         </v-breadcrumbs>
         </v-layout>
-        <transition name="fade" mode="out-in" appear>
+        <transition
+          name="fade"
+          mode="out-in"
+          appear
+        >
           <router-view></router-view>
         </transition>
       </v-content>
@@ -35,6 +39,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 import NavBar from './components/Layout/NavBar';
 import SideBar from './components/Layout/SideBar';
 
@@ -55,13 +61,30 @@ export default {
     }
   },
   computed: {
+    ...mapState([
+      'search'
+    ]),
     breadcrumbs(){
       var currentRoute = this.$route;
       if (typeof currentRoute.meta.breadcrumbs != "undefined"){
         return ['home', ...currentRoute.meta.breadcrumbs];
       }
-
       return false;
+    }
+  },
+  watch: {
+    search(obj){
+      if (typeof obj == "undefined" || !obj || obj == null || obj == {}){
+        return;
+      }
+      if (obj.table == 'task'){
+        this.$router.push({
+          name: 'task',
+          query: {
+            q: window.encodeURIComponent(obj.title)
+          }
+        })
+      }
     }
   }
 };
@@ -78,11 +101,20 @@ export default {
   background: #ffffff;
 }
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .2s ease-in-out;
+  opacity: 0.3;
+  background-color: #ffffff !important;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
+.fade-enter, .fade-leave-to {
+  opacity: 0.3;
+  background-color: #ffffff !important;
+  transition: .5s
 }
+
+.router-change {
+  background: #ffffff !important;
+  opacity: .4;
+}
+
 #nprogress .bar {
   background: #42A5F5;
   height: 3px;

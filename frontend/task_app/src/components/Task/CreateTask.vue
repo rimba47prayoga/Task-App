@@ -32,6 +32,7 @@
             </label>
             <v-flex xs4>
               <v-autocomplete
+                append-icon="expand_more"
                 v-model="selected_project"
                 :items="project_items"
                 :rules="default_rules"
@@ -87,6 +88,7 @@
             </label>
             <v-flex xs4>
               <v-autocomplete
+                append-icon="expand_more"
                 v-model="selected_task_type"
                 :items="task_type"
                 :rules="default_rules"
@@ -190,6 +192,7 @@
             </label>
             <v-flex xs4>
               <v-autocomplete
+                append-icon="expand_more"
                 v-model="selected_priority"
                 :items="priority_items"
                 :rules="default_rules"
@@ -257,6 +260,7 @@
             <label class="input-label">Assignee</label>
             <v-flex xs4>
               <v-autocomplete
+                append-icon="expand_more"
                 v-model="assignee_task"
                 :items="assignee_items"
                 :loading="isLoadingAssignee"
@@ -348,6 +352,7 @@
             </label>
             <v-flex xs10>
               <v-autocomplete
+                append-icon="expand_more"
                 v-model="parent_task"
                 :items="parent_task_items"
                 :loading="isLoadingParentTask"
@@ -533,10 +538,7 @@ export default {
       }
     },
     clearForm(){
-      this.title = '';
-      this.assignee_task = '';
-      this.label = '';
-      this.descriptions = '';
+      this.$refs.formCreateTask.reset();
     },
     submitForm(event){
       if(this.$refs.formCreateTask.validate()){
@@ -607,6 +609,8 @@ export default {
         projects = JSON.parse(projects);
         this.project_items = projects;
         this.selected_project = this.$store.getters.selected_project.id;
+        this.selected_task_type = TaskType.TASK.toString(),
+        this.selected_priority = TaskPriority.MEDIUM
       }
     }
   },

@@ -2,6 +2,7 @@ from collections import OrderedDict
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.db.models import F
 from haystack.query import SearchQuerySet
 from rest_framework import generics
 from rest_framework import status
@@ -28,9 +29,13 @@ class TaskViewSet(generics.ListAPIView,
     def get_queryset(self):
         request = self.request
         project = request.query_params.get('project')
+        pk = request.query_params.get('id')
+        queryset = self.queryset
         if project:
-            return self.queryset.filter(project=project)
-        return self.queryset
+            queryset = queryset.filter(project=project)
+        if pk:
+            queryset = queryset.filter(id=pk)
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'assignee_task':
@@ -61,7 +66,9 @@ class TaskViewSet(generics.ListAPIView,
 
     @action(methods=['get'], detail=False)
     def parent_task(self, request):
-        queryset = self.queryset.values('id', 'title', 'prefix_branch', 'branch')
+        queryset = self.queryset.annotate(
+            prefix_branch=F('project__board_name')
+        ).values('id', 'title', 'prefix_branch', 'branch')
         import time
         time.sleep(1)
         return Response(queryset)
@@ -124,7 +131,9 @@ class SearchTaskViewSet(viewsets.ReadOnlyModelViewSet):
                         ('id', task.pk),
                         ('title', task.title),
                         ('branch', task.branch_name),
-                        ('assignee', task.assignee)
+                        ('assignee', task.assignee),
+                        ('table', task.table),
+                        ('avatar', task.avatar)
                     ])
                 )
             search_result = {

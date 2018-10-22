@@ -13,9 +13,12 @@ import router from './router';
 import { store } from './store/store';
 import request from './services/request';
 
+import { resizeTaskContainer } from "./components/Task/utils/task-list";
+
 Vue.config.productionTip = false;
 Vue.use(Vuetify);
 Vue.use(VueCookies);
+
 window.onload = function () {
   request.get('project/')
     .then(response => {
@@ -34,6 +37,13 @@ window.onload = function () {
       };
   })
 };
+
+window.onresize = function () {
+  if (router.currentRoute.name == 'task') {
+    resizeTaskContainer();
+  }
+}
+
 new Vue({
   el: '#app',
   store,

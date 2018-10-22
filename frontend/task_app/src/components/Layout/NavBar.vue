@@ -18,6 +18,7 @@
         :loading="loading_search"
         :items="items"
         :search-input.sync="search"
+        :filter="customFilter"
         :autofocus="true"
         item-text="title"
         item-value="id"
@@ -27,32 +28,139 @@
         label="Search"
         prepend-inner-icon="search"
         solo-inverted
-        :menu-props="{zIndex:'10000000'}"
-        id="search_autocomplete"
+        :menu-props="{
+          zIndex:'10000000',
+          overflowY: true,
+          overflowX: true,
+          offsetOverflow: false
+        }"
+        ref="search_autocomplete"
         @change="change"
         return-object
       >
+        <template
+          slot="item"
+          slot-scope="{ parent, item, tile }"
+        >
+          <v-list-tile-avatar v-if="item.assignee != null">
+            <v-img v-if="item.avatar != null" :src="item.avatar"></v-img>
+            <v-icon v-else class="primary--text">
+              account_circle
+            </v-icon>
+          </v-list-tile-avatar>
+
+          <v-list-tile-content>
+            <!--Highlight output item.name-->
+            <v-list-tile-title v-html="`${parent.genFilteredText(item.title)}`">
+            </v-list-tile-title>
+            <v-list-tile-sub-title v-text="item.assignee"></v-list-tile-sub-title>
+          </v-list-tile-content>
+          <v-list-tile-action>
+            <div class="text-xs-center">
+              <v-chip>
+                <v-avatar class="teal">{{ item.branch.split('-')[0] }}</v-avatar>
+                {{ item.branch.split('-')[1] }}
+              </v-chip>
+            </div>
+          </v-list-tile-action>
+       </template>
+
       </v-autocomplete>
       <v-spacer></v-spacer>
+      <v-btn icon @click="FullScreen()">
+              <v-icon>fullscreen</v-icon>
+      </v-btn>
       <v-btn icon>
         <v-icon>apps</v-icon>
       </v-btn>
       <v-btn icon>
         <v-icon>notifications</v-icon>
       </v-btn>
-      <v-btn icon large>
-        <v-avatar size="32px" tile>
-          <img
-            src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
-            alt="Vuetify"
-          >
-        </v-avatar>
-      </v-btn>
+
+      <div class="text-xs-center">
+        <v-menu
+          v-model="menu"
+          :close-on-content-click="false"
+          :nudge-width="200"
+          offset-y
+        >
+          <v-btn icon large class="mr-4" slot="activator">
+            <v-avatar size="32px" tile>
+              <img v-if="user && user.profile && user.profile.picture"
+                src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
+                alt="Vuetify"
+              >
+              <v-icon v-else size="32px">
+                account_circle
+              </v-icon>
+            </v-avatar>
+          </v-btn>
+
+          <v-card>
+            <v-list>
+              <v-list-tile avatar>
+                <v-list-tile-avatar>
+                  <img v-if="user && user.profile && user.profile.picture"
+                    src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
+                    alt="Vuetify"
+                  >
+                  <v-icon v-else size="32px">
+                    account_circle
+                  </v-icon>
+                </v-list-tile-avatar>
+
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ user.first_name }} {{ user.last_name }}</v-list-tile-title>
+                  <v-list-tile-sub-title>Full Stack developer</v-list-tile-sub-title>
+                </v-list-tile-content>
+
+                <v-list-tile-action>
+                  <v-btn
+                    class="red--text"
+                    icon
+                  >
+                    <v-icon>favorite</v-icon>
+                  </v-btn>
+                </v-list-tile-action>
+              </v-list-tile>
+            </v-list>
+
+            <v-divider></v-divider>
+
+            <v-list>
+              <v-list-tile>
+                <v-list-tile-action>
+                  <v-icon>
+                    account_circle
+                  </v-icon>
+                </v-list-tile-action>
+                <v-list-tile-title>Profile</v-list-tile-title>
+              </v-list-tile>
+
+              <v-list-tile>
+                <v-list-tile-action>
+                  <v-icon>
+                    settings
+                  </v-icon>
+                </v-list-tile-action>
+                <v-list-tile-title>Settings</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn color="primary" ripple flat @click="$router.push('/logout')">Log out</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+      </div>
     </v-toolbar>
 </template>
 
 <script>
 import request from "../../services/request.js";
+import { toggleFullScreen } from '../../utils/common.js';
 
 export default {
   data(){
@@ -62,7 +170,10 @@ export default {
       recent_search: [],
       cache_result: [],
       select: null,
-      search: null
+      search: null,
+      user: this.$store.getters.user,
+      menu: false,
+      search_width: null
     }
   },
   methods: {
@@ -70,6 +181,7 @@ export default {
       this.$store.commit('setSidebar', !this.$store.getters.sidebar)
     },
     change(val){
+      this.$store.commit('setSearch', this.select);
       if (typeof val == "undefined") {
         this.$router.push({
           query: {}
@@ -81,8 +193,25 @@ export default {
         query: {
           q: q
         }
-      })
-    }
+      });
+    },
+    FullScreen(){
+      toggleFullScreen();
+    },
+    customFilter (item, queryText, itemText) {
+        const title = item.title.toLowerCase();
+        const branch = item.branch.toLowerCase();
+        const assignee = item.assignee.toLowerCase();
+        const searchText = queryText.toLowerCase();
+
+        return title.indexOf(searchText) > -1 ||
+        branch.indexOf(searchText) > -1 ||
+        assignee.indexOf(searchText) > -1;
+      }
+  },
+  mounted(){
+    let search_width = this.$refs.search_autocomplete.$el.offsetWidth;
+    this.search_width = search_width;
   },
   watch: {
     search(val){
