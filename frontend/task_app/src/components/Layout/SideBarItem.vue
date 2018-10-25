@@ -16,7 +16,7 @@
             <span>{{ selectedProject.name }}</span>
           </v-tooltip>
           <v-list-tile-content>
-            <v-list-tile-title style="font-size:17px;">
+            <v-list-tile-title style="font-size:17px;" class="font-weight-bold">
               {{ selectedProject.name }}
             </v-list-tile-title>
             <span style="font-size: 12px; color: #616161;">{{ selectedProject.project_type_display }}</span>
@@ -38,7 +38,7 @@
                 <img class="project_icon" src="@/assets/project_icon.png" />
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-list-tile-title>{{ project.name }}</v-list-tile-title>
+                <v-list-tile-title class="font-weight-bold">{{ project.name }}</v-list-tile-title>
                 <v-list-tile-sub-title>{{ project.project_type_display }}</v-list-tile-sub-title>
               </v-list-tile-content>
             </v-list-tile>

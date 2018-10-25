@@ -8,18 +8,16 @@
             :data-taskid="task.id"
           >
             <v-tooltip right open-delay="800">
-              <v-card-title class="primary-title pa-2" slot="activator">
-                <div class="subheading font-weight-normal">{{ task.title }}</div>
+              <v-card-title class="primary-title task-title" slot="activator">
+                <div>{{ task.title }}</div>
               </v-card-title>
               <span>{{ task.title }}</span>
             </v-tooltip>
             <v-card-actions class="pa-0 pl-2 pr-2">
               <v-icon v-bind:class="class_task_type">{{ getTaskTypeIcon() }}</v-icon>
               <v-icon v-bind:class="class_priority">{{ getTaskPriorityIcon() }}</v-icon>
-              <v-spacer></v-spacer>
-              {{ task.deadline }}
             </v-card-actions>
-            <v-card-actions class="pa-0 pl-2 pr-2 pt-2">
+            <v-card-actions>
               <v-tooltip
               v-if="task.assignee != null"
               bottom
@@ -34,7 +32,9 @@
               </v-tooltip>
               <!-- TODO: handle it if user has avatar image -->
 
-              <div class="grey--text">{{ task.branch }}</div>
+              <div class="task-branch">{{ task.branch }}</div>
+              <v-spacer></v-spacer>
+              {{ task.deadline }}
             </v-card-actions>
           </v-card>
         </v-hover>
@@ -52,7 +52,8 @@ export default {
       class_priority: {
         "task-priority-icon": true,
         "priority-medium": this.task.priority == TaskPriority.MEDIUM,
-        "priority-high": this.task.priority == TaskPriority.HIGH
+        "priority-high": this.task.priority == TaskPriority.HIGH,
+        "priority-highest": this.task.priority == TaskPriority.HIGHEST
       },
       class_task_type: {
         "task-type-icon": true,
@@ -100,9 +101,23 @@ export default {
 </script>
 
 <style>
-.font-weight-normal {
-  font-weight: normal;
-  line-height: normal;
+@media only screen and (max-width: 1200px) {
+  .task-title {
+    font-size: 14px !important;
+    line-height: 1.42857143;
+    max-height: 4.28571429em;
+  }
+}
+.task-title {
+  color: #172B4D !important;
+  font-size: 15px;
+  font-weight: 400;
+  display: block;
+  box-sizing: content-box;
+  line-height: 1.4857143;
+  max-height: 4em;
+  overflow: hidden;
+  padding: 10px !important;
 }
 .task-user-icon, .theme--light.task-user-icon{
   font-size: 30px;
@@ -114,8 +129,23 @@ export default {
 .task-priority-icon{
   font-size: 18px;
 }
-.priority-medium, .theme--light.priority-medium{
+/* .priority-medium, .theme--light.priority-medium{
   color: #FB8C00;
+} */
+.priority-lowest, .theme--light.priority-lowest {
+  color: #66BB6A;
+}
+.priority-low, .theme--light.priority-low {
+  color: #2E7D32;
+}
+.priority-medium, .theme--light.priority-medium {
+  color: #F57C00;
+}
+.priority-high, .theme--light.priority-high {
+  color: #E53935;
+}
+.priority-highest, .theme--light.priority-highest {
+  color: #B71C1C;
 }
 .sub-task, .theme--light.sub-task {
   color:#64B5F6;
@@ -125,9 +155,13 @@ export default {
   box-shadow: 0px 1px 2px 0px rgba(9, 30, 66, 0.25);
 }
 .v-card {
-  border-radius: 3px;
+  border-radius: 2px;
 }
 .mb-6px {
   margin-bottom: 6px !important;
+}
+.task-branch {
+  color: #5E6C84;
+  font-weight: 500;
 }
 </style>

@@ -9,6 +9,7 @@ class TaskIndex(indexes.SearchIndex, indexes.Indexable):
         use_template=True,
         template_name='search/indexes/task/task_text.txt'
     )
+    project = indexes.CharField(model_attr='project__id')
     title = indexes.CharField(model_attr='title', boost=2)
     label = indexes.CharField(model_attr='label', null=True)
     assignee = indexes.CharField(model_attr='assignee__username', null=True)

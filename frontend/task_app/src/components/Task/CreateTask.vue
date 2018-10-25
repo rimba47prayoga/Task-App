@@ -676,6 +676,6 @@ form.create-task-form .v-text-field--solo .v-input__slot {
   transition: .05s ease-in-out;
 }
 form.create-task-form .v-text-field--solo .v-input__slot:hover {
-  background-color: rgb(240, 241, 243) !important;
+  background-color: #ebecf0 !important;
 }
 </style>

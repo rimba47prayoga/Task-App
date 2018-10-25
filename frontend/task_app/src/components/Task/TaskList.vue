@@ -50,66 +50,125 @@
     </v-btn>
   </v-snackbar>
 
-  <!-- <v-layout row wrap pa-0 mb-0 ml-2 mr-2 mt-2>
-      <div style="color: #616161;" class="headline">
-        {{ $store.getters.selected_project.board_name }} Board
-      </div>
-      <v-flex xs12>
-        <v-flex xs2 class="input-grey mt-2 mb-2">
-          <v-autocomplete
-            v-model="filters.assignee"
-            :items="filters.assignee_items"
-            :loading="filters.isLoadingAssignee"
-            :search-input.sync="filters.search_assignee"
-            hide-no-data
-            hide-details
-            item-text="username"
-            item-value="id"
-            placeholder="Assignee"
-            solo
-            flat
-            class="solo-grey"
-          >
-            <template slot="no-data">
-              <v-list-tile>
-                <v-list-tile-title>
-                  Search for your favorite
-                  <strong>Cryptocurrency</strong>
-                </v-list-tile-title>
-              </v-list-tile>
-            </template>
-
-            <template
-              slot="selection"
-              slot-scope="{ item, selected }"
-            >
-              <v-icon
-              v-if="item.avatar == null"
-              class="mr-2"
-              style="color: #1565c0 !important"
-              >account_circle</v-icon>
-              {{ item.username }}
-            </template>
-
-            <template
-              slot="item"
-              slot-scope="{ item, tile }"
-            >
-              <v-icon
-              v-if="item.avatar == null"
-              class="mr-2"
-              style="color:#1565c0 !important">account_circle</v-icon>
-              <v-list-tile-content>
-                <v-list-tile-title v-text="item.username"></v-list-tile-title>
-              </v-list-tile-content>
-            </template>
-          </v-autocomplete>
-        </v-flex>
+  <v-container
+    pa-0
+    mb-2
+    style="max-width: 100%"
+  >
+    <v-layout align-center justify-space-between row fill-height pa-0 ml-1 mr-1>
+      <v-flex xs8 style="color: #616161;" class="headline">
+        Task List
       </v-flex>
-  </v-layout> -->
+      <v-spacer></v-spacer>
+      <v-flex class="input-grey mr-2 w-19">
+        <v-combobox
+          v-model="filters.assignee"
+          :items="filters.assignee_items"
+          :loading="filters.isLoadingAssignee"
+          :search-input.sync="filters.search_assignee"
+          hide-no-data
+          hide-details
+          item-text="username"
+          item-value="id"
+          placeholder="Assignee"
+          solo
+          flat
+          class="solo-grey"
+        >
+          <template slot="no-data">
+            <v-list-tile>
+              <v-list-tile-title>
+                Search for your favorite
+                <strong>Cryptocurrency</strong>
+              </v-list-tile-title>
+            </v-list-tile>
+          </template>
+
+          <template
+            slot="selection"
+            slot-scope="{ item, selected }"
+          >
+            <v-icon
+            v-if="item.avatar == null"
+            class="mr-2"
+            style="color: #1565c0 !important"
+            >account_circle</v-icon>
+            {{ item.username }}
+          </template>
+
+          <template
+            slot="item"
+            slot-scope="{ item, tile }"
+          >
+            <v-icon
+            v-if="item.avatar == null"
+            class="mr-2"
+            style="color:#1565c0 !important">account_circle</v-icon>
+            <v-list-tile-content>
+              <v-list-tile-title v-text="item.username"></v-list-tile-title>
+            </v-list-tile-content>
+          </template>
+        </v-combobox>
+      </v-flex>
+
+      <v-flex class="input-grey ml-2 w-19">
+        <v-combobox
+          v-model="filters.assignee"
+          :items="filters.assignee_items"
+          :loading="filters.isLoadingAssignee"
+          :search-input.sync="filters.search_assignee"
+          hide-no-data
+          hide-details
+          item-text="username"
+          item-value="id"
+          placeholder="Assignee"
+          solo
+          flat
+          class="solo-grey"
+        >
+          <template slot="no-data">
+            <v-list-tile>
+              <v-list-tile-title>
+                Search for your favorite
+                <strong>Cryptocurrency</strong>
+              </v-list-tile-title>
+            </v-list-tile>
+          </template>
+
+          <template
+            slot="selection"
+            slot-scope="{ item, selected }"
+          >
+            <v-icon
+            v-if="item.avatar == null"
+            class="mr-2"
+            style="color: #1565c0 !important"
+            >account_circle</v-icon>
+            {{ item.username }}
+          </template>
+
+          <template
+            slot="item"
+            slot-scope="{ item, tile }"
+          >
+            <v-icon
+            v-if="item.avatar == null"
+            class="mr-2"
+            style="color:#1565c0 !important">account_circle</v-icon>
+            <v-list-tile-content>
+              <v-list-tile-title v-text="item.username"></v-list-tile-title>
+            </v-list-tile-content>
+          </template>
+        </v-combobox>
+      </v-flex>
+      <!-- <v-flex xs1 pr-4 style="text-align: right;">
+
+      </v-flex> -->
+    </v-layout>
+  </v-container>
 
   <v-container pa-0 style="max-width: unset;">
-    <v-layout class="align-start justify-start row fill-height progress-display pb-4">
+    <v-layout class="align-start justify-space-between row fill-height progress-display pb-4">
       <v-flex
         class="white-grey-blue w-19 m-5px pa-2 br-3px"
         v-for="progress in tasks_progress"
@@ -125,7 +184,7 @@
 
       <v-layout
         v-scroll:#scroll-target=""
-        align-content-space-between justify-start row fill-height scroll-y
+        align-content-space-between justify-space-between row fill-height scroll-y
         style="min-height: 200px"
         >
         <!-- Loading component -->
@@ -164,7 +223,7 @@
         >
           <v-card
             v-for="task in tasks[key]" :key="task.id"
-            class="black--text mb-2 bg-none"
+            class="black--text mb-1 mt-1 bg-none"
             :data-taskid="task.id"
           >
             <task v-bind:task="task"></task>
@@ -310,7 +369,7 @@ export default {
       filters: {
         isLoadingAssignee: false,
         assignee: null,
-        assignee_items: [],
+        assignee_items: [{id: 2, username: "rimba47prayoga", avatar: null}],
         search_assignee: null
       }
     };

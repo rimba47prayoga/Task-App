@@ -13,36 +13,36 @@ import router from './router';
 import { store } from './store/store';
 import request from './services/request';
 
-import { resizeTaskContainer } from "./components/Task/utils/task-list";
+import { resizeTaskContainer } from './components/Task/utils/task-list';
 
 Vue.config.productionTip = false;
 Vue.use(Vuetify);
+
 Vue.use(VueCookies);
 
-window.onload = function () {
-  request.get('project/')
-    .then(response => {
-      if (!response.data.length) return;
-      localStorage.setItem('projects', JSON.stringify(response.data));
-      var selected_project = localStorage.getItem('selected_project');
-      if (selected_project == null || !selected_project) {
-        return;
-      }
-      selected_project = JSON.parse(selected_project);
-      let is_exist = response.data.filter((project, index) => {
-        return project.id == selected_project.id;
-      });
-      if (!is_exist.length) {
-        localStorage.removeItem('selected_project');
-      };
-  })
+window.onload = function() {
+  request.get('project/').then(response => {
+    if (!response.data.length) return;
+    localStorage.setItem('projects', JSON.stringify(response.data));
+    var selected_project = localStorage.getItem('selected_project');
+    if (selected_project == null || !selected_project) {
+      return;
+    }
+    selected_project = JSON.parse(selected_project);
+    let is_exist = response.data.filter((project, index) => {
+      return project.id == selected_project.id;
+    });
+    if (!is_exist.length) {
+      localStorage.removeItem('selected_project');
+    }
+  });
 };
 
-window.onresize = function () {
+window.onresize = function() {
   if (router.currentRoute.name == 'task') {
     resizeTaskContainer();
   }
-}
+};
 
 new Vue({
   el: '#app',
@@ -50,3 +50,5 @@ new Vue({
   router,
   render: h => h(App)
 }).$mount('#app');
+
+export const EventBus = new Vue();

@@ -5,23 +5,18 @@
       <nav-bar></nav-bar>
       <v-content>
         <v-layout align-content-space-between justify-start>
-        <!-- <div style="font-size: 25px;line-height: -moz-block-height;" class="mr-2"></div> -->
         <v-breadcrumbs
           v-if="breadcrumbs.length"
           :large="true"
-          divider="-"
-          class="pr-4 pl-4 ma-2"
+          divider=" / "
+          class="pr-4 pl-4 mt-1 ml-2 mr-2 mb-0"
         >
-          <v-breadcrumbs-item style="font-size: 25px">
-            {{ basePath() }}
-          </v-breadcrumbs-item>
           <v-breadcrumbs-item
             v-for="(item, index) in breadcrumbs"
             :key="index"
             :disabled="index == breadcrumbs.length - 1"
           >
-            <v-icon v-if="item == 'home'">home</v-icon>
-            {{ item != 'home' ? item: '' }}
+            {{ item }}
           </v-breadcrumbs-item>
         </v-breadcrumbs>
         </v-layout>
@@ -44,7 +39,7 @@ import { mapState } from 'vuex';
 import NavBar from './components/Layout/NavBar';
 import SideBar from './components/Layout/SideBar';
 
-import { capitalize } from './utils/common.js';
+import { capitalize as UtilCapitalize } from './utils/common.js';
 
 export default {
   name: "app",
@@ -53,9 +48,12 @@ export default {
     SideBar
   },
   methods: {
+    capitalize(value){
+      return UtilCapitalize(value);
+    },
     basePath(){
       if (this.breadcrumbs){
-        return capitalize(this.breadcrumbs[1])
+        return UtilCapitalize(this.breadcrumbs[1])
       }
       return []
     }
@@ -65,11 +63,8 @@ export default {
       'search'
     ]),
     breadcrumbs(){
-      var currentRoute = this.$route;
-      if (typeof currentRoute.meta.breadcrumbs != "undefined"){
-        return ['home', ...currentRoute.meta.breadcrumbs];
-      }
-      return false;
+      let selected_project = this.$store.getters.selected_project;
+      return [ `${selected_project.name} - ${selected_project.project_type}`, `${selected_project.board_name} Board` ]
     }
   },
   watch: {

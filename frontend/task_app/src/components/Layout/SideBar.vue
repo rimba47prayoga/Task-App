@@ -1,12 +1,10 @@
 <template>
   <v-navigation-drawer
     :clipped="$vuetify.breakpoint.lgAndUp"
-    :value="sidebar"
+    v-model="drawer"
     fixed
     app
     :mini-variant="mini_variant"
-    stateless
-    hide-overlay
     width="260"
     class="white-grey-blue"
   >
@@ -18,6 +16,7 @@
 </template>
 
 <script>
+import { EventBus } from '../../event-bus.js';
 import SideBarItem from "./SideBarItem";
 
 import { mapState } from 'vuex';
@@ -27,12 +26,10 @@ export default {
     SideBarItem
   },
   data: () => ({
+    drawer: true,
     mini_variant: true,
   }),
   computed: {
-    ...mapState([
-      'sidebar'
-    ]),
     user(){
       let user = this.$store.getters.user;
       var picture;
@@ -48,6 +45,11 @@ export default {
       user.picture = picture;
       return user;
     }
+  },
+  mounted(){
+    EventBus.$on('toggleSidebar', () => {
+      this.drawer = !this.drawer;
+    })
   }
 }
 </script>

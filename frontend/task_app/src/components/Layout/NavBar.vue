@@ -10,7 +10,7 @@
       <v-toolbar-title style="width: 260px" class="ml-1 pl-2 mr-4">
         <v-toolbar-side-icon @click.stop="setSidebar()"></v-toolbar-side-icon>
           <img src="@/assets/task_icon.png" class="task_icon" />
-        <span class="hidden-sm-and-down ml-3">Task App</span>
+        <span class="hidden-sm-and-down ml-1">Task App</span>
       </v-toolbar-title>
 
       <v-autocomplete
@@ -18,12 +18,12 @@
         :loading="loading_search"
         :items="items"
         :search-input.sync="search"
-        :filter="customFilter"
         :autofocus="true"
         item-text="title"
         item-value="id"
         clearable
         flat
+        no-filter
         hide-no-data
         label="Search"
         prepend-inner-icon="search"
@@ -51,8 +51,9 @@
 
           <v-list-tile-content>
             <!--Highlight output item.name-->
-            <v-list-tile-title v-html="`${parent.genFilteredText(item.title)}`">
-            </v-list-tile-title>
+            <!-- <v-list-tile-title v-html="`${parent.genFilteredText(item.title)}`">
+            </v-list-tile-title> -->
+            <v-list-tile-title class="font-weight-bold" v-html="item.title_highlighted"></v-list-tile-title>
             <v-list-tile-sub-title v-text="item.assignee"></v-list-tile-sub-title>
           </v-list-tile-content>
           <v-list-tile-action>
@@ -67,16 +68,25 @@
 
       </v-autocomplete>
       <v-spacer></v-spacer>
-      <v-btn icon @click="FullScreen()">
-              <v-icon>fullscreen</v-icon>
-      </v-btn>
-      <v-btn icon>
-        <v-icon>apps</v-icon>
-      </v-btn>
-      <v-btn icon>
-        <v-icon>notifications</v-icon>
-      </v-btn>
+      <v-tooltip bottom>
+        <v-btn icon @click="FullScreen()" slot="activator">
+          <v-icon>fullscreen</v-icon>
+        </v-btn>
+        <span>Set FullScreen</span>
+      </v-tooltip>
 
+      <v-tooltip bottom>
+        <v-btn icon slot="activator">
+          <v-icon>apps</v-icon>
+        </v-btn>
+        <span>Apps</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <v-btn icon slot="activator">
+          <v-icon>notifications</v-icon>
+        </v-btn>
+        <span>Notifications</span>
+      </v-tooltip>
       <div class="text-xs-center">
         <v-menu
           v-model="menu"
@@ -159,6 +169,7 @@
 </template>
 
 <script>
+import { EventBus } from '../../event-bus.js';
 import request from "../../services/request.js";
 import { toggleFullScreen } from '../../utils/common.js';
 
@@ -178,7 +189,7 @@ export default {
   },
   methods: {
     setSidebar(){
-      this.$store.commit('setSidebar', !this.$store.getters.sidebar)
+      EventBus.$emit('toggleSidebar');
     },
     change(val){
       this.$store.commit('setSearch', this.select);
@@ -197,17 +208,18 @@ export default {
     },
     FullScreen(){
       toggleFullScreen();
-    },
-    customFilter (item, queryText, itemText) {
-        const title = item.title.toLowerCase();
-        const branch = item.branch.toLowerCase();
-        const assignee = item.assignee.toLowerCase();
-        const searchText = queryText.toLowerCase();
-
-        return title.indexOf(searchText) > -1 ||
-        branch.indexOf(searchText) > -1 ||
-        assignee.indexOf(searchText) > -1;
+    }
+  },
+  computed: {
+    selected_project(){
+      var selected = this.$store.getters.selected_project ||
+      localStorage.getItem('selected_project');
+      if (selected == null) return false;
+      if (typeof selected == "string"){
+        selected = JSON.parse(selected);
       }
+      return selected.id;
+    }
   },
   mounted(){
     let search_width = this.$refs.search_autocomplete.$el.offsetWidth;
@@ -228,7 +240,14 @@ export default {
         return;
       }
       this.loading_search = true;
-      request.get(`task/search/autocomplete?q=${val}`)
+      let selected_project = this.selected_project;
+      if (!selected_project){
+        this.$router.push({
+          name: 'dashboard'
+        });
+        return false;
+      }
+      request.get(`task/search/autocomplete?q=${val}&project=${selected_project}`)
       .then(response => {
         this.items = response.data.result;
         this.recent_search.push(val);
@@ -245,16 +264,19 @@ export default {
 </script>
 
 <style>
-.v-list__tile__title {
+/* .v-list__tile__title {
   font-weight: bold;
 }
 .v-list__tile__title > .v-list__tile__mask {
   font-weight: normal;
   background: none !important;
   color: unset !important;
+} */
+span.highlighted {
+  font-weight: lighter !important;
 }
 .task_icon {
-  width: 40px;
+  width: 34px;
   vertical-align: middle;
 }
 nav .v-autocomplete .v-input__slot {

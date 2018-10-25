@@ -16,6 +16,7 @@ from .serializers import (
     TaskSerializer, SimpleUserSerializer, CreateTaskSerializer,
     UpdateProgressSerializer
 )
+from .utils import TaskHighlighter
 
 
 class TaskViewSet(generics.ListAPIView,
@@ -122,22 +123,31 @@ class SearchTaskViewSet(viewsets.ReadOnlyModelViewSet):
     @action(methods=['get'], detail=False)
     def autocomplete(self, request):
         q = request.query_params.get('q')
-        if q:
-            search_result = SearchQuerySet().autocomplete(text__icontains=q)
-            result = []
-            for task in search_result:
-                result.append(
-                    OrderedDict([
-                        ('id', task.pk),
-                        ('title', task.title),
-                        ('branch', task.branch_name),
-                        ('assignee', task.assignee),
-                        ('table', task.table),
-                        ('avatar', task.avatar)
-                    ])
-                )
-            search_result = {
-                'result': result
-            }
-            return Response(search_result)
+        if q.strip():
+            project = request.query_params.get('project')
+            if project:
+                search_result = (SearchQuerySet().filter(project=project)
+                                 .autocomplete(text__icontains=q))
+                result = []
+                highlight = TaskHighlighter(query=q, html_tag='span', max_length=40)
+                for task in search_result:
+                    result.append(
+                        OrderedDict([
+                            ('id', task.pk),
+                            ('title_highlighted', highlight.highlight(task.title)),
+                            ('title', task.title),
+                            ('branch', task.branch_name),
+                            ('assignee', task.assignee),
+                            ('table', task.table),
+                            ('avatar', task.avatar)
+                        ])
+                    )
+                search_result = {
+                    'result': result
+                }
+                return Response(search_result)
+            raise TaskAppError(
+                error_code=TaskAppErrorCode.NOT_SELECT_PROJECT,
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
         return Response([])

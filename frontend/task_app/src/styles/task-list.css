@@ -63,11 +63,13 @@
 .v-card.theme--light.white-card.task-choosed {
   background: #DEEBFF !important;
 }
+.v-card.theme--light.white-card {
+  transition: background-color 140ms ease-in-out, border-color 75ms ease-in-out;
+}
 
 .v-card.theme--light.white-card:hover {
   cursor:move;
-  transition: background-color 140ms ease-in-out, border-color 75ms ease-in-out;
-  background: #F4F5F7 !important;
+  background: #EBECF0 !important;
 }
 .hide {
   display: none !important;
