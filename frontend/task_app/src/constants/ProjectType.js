@@ -3,11 +3,12 @@ export default {
   WEB_SERVICES: 1,
 
   getProjectDisplay (type) {
-    switch (type) {
+    switch (Number(type)) {
       case this.SOFTWARE:
         return "Software Project";
       case this.WEB_SERVICES:
-        return "Web Services Project"
+        return "Web Services Project";
     }
+    return type;
   }
 }

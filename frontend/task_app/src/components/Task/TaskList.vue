@@ -60,20 +60,23 @@
         Task List
       </v-flex>
       <v-spacer></v-spacer>
-      <v-flex class="input-grey mr-2 w-19">
+
+      <v-flex class="ml-2 w-19 filter-task-list">
         <v-combobox
           v-model="filters.assignee"
           :items="filters.assignee_items"
-          :loading="filters.isLoadingAssignee"
-          :search-input.sync="filters.search_assignee"
           hide-no-data
           hide-details
           item-text="username"
           item-value="id"
-          placeholder="Assignee"
+          label="Assignee"
           solo
           flat
+          clearable
           class="solo-grey"
+          prepend-inner-icon="expand_more"
+          append-icon=""
+          @change="select_assignee"
         >
           <template slot="no-data">
             <v-list-tile>
@@ -88,11 +91,6 @@
             slot="selection"
             slot-scope="{ item, selected }"
           >
-            <v-icon
-            v-if="item.avatar == null"
-            class="mr-2"
-            style="color: #1565c0 !important"
-            >account_circle</v-icon>
             {{ item.username }}
           </template>
 
@@ -110,60 +108,6 @@
           </template>
         </v-combobox>
       </v-flex>
-
-      <v-flex class="input-grey ml-2 w-19">
-        <v-combobox
-          v-model="filters.assignee"
-          :items="filters.assignee_items"
-          :loading="filters.isLoadingAssignee"
-          :search-input.sync="filters.search_assignee"
-          hide-no-data
-          hide-details
-          item-text="username"
-          item-value="id"
-          placeholder="Assignee"
-          solo
-          flat
-          class="solo-grey"
-        >
-          <template slot="no-data">
-            <v-list-tile>
-              <v-list-tile-title>
-                Search for your favorite
-                <strong>Cryptocurrency</strong>
-              </v-list-tile-title>
-            </v-list-tile>
-          </template>
-
-          <template
-            slot="selection"
-            slot-scope="{ item, selected }"
-          >
-            <v-icon
-            v-if="item.avatar == null"
-            class="mr-2"
-            style="color: #1565c0 !important"
-            >account_circle</v-icon>
-            {{ item.username }}
-          </template>
-
-          <template
-            slot="item"
-            slot-scope="{ item, tile }"
-          >
-            <v-icon
-            v-if="item.avatar == null"
-            class="mr-2"
-            style="color:#1565c0 !important">account_circle</v-icon>
-            <v-list-tile-content>
-              <v-list-tile-title v-text="item.username"></v-list-tile-title>
-            </v-list-tile-content>
-          </template>
-        </v-combobox>
-      </v-flex>
-      <!-- <v-flex xs1 pr-4 style="text-align: right;">
-
-      </v-flex> -->
     </v-layout>
   </v-container>
 
@@ -367,10 +311,8 @@ export default {
       left: false,
       transition: 'slide-y-reverse-transition',
       filters: {
-        isLoadingAssignee: false,
         assignee: null,
-        assignee_items: [{id: 2, username: "rimba47prayoga", avatar: null}],
-        search_assignee: null
+        assignee_items: []
       }
     };
   },
@@ -411,6 +353,13 @@ export default {
       if (search != null && search != {}){
         url = addQueryParam(url, {
           id: search.id
+        })
+      }
+
+      let assignee = this.filters.assignee;
+      if (assignee != null && assignee) {
+        url = addQueryParam(url, {
+          assignee: assignee.id
         })
       }
       request.get(url)
@@ -648,6 +597,13 @@ export default {
     sort(from){
       let progress = from.target.dataset.progress;
       this.sortTask(progress);
+    },
+
+    /** filter task by assignee
+     * @param {Object} user
+     */
+    select_assignee(user){
+      this.reloadTask();
     }
   },
   computed: {
@@ -674,10 +630,10 @@ export default {
   },
   created(){
     this.reloadTask();
-  },
-  beforeRouteUpdate(to, from, next){
-    console.log(to)
-    next();
+    request.get('task/list/assignee_task')
+    .then(response => {
+      this.filters.assignee_items = response.data;
+    });
   },
   watch: {
     /** watcher on set project, it must be reload task by selected project
@@ -713,5 +669,9 @@ export default {
   border: 1px solid #e4e7ea;
   min-height: 39px;
   transition: .05s ease-in-out;
+}
+
+.flex.ml-2.filter-task-list:hover .v-input__slot {
+  background: #EBECF0 !important;
 }
 </style>

@@ -56,14 +56,6 @@
             <v-list-tile-title class="font-weight-bold" v-html="item.title_highlighted"></v-list-tile-title>
             <v-list-tile-sub-title v-text="item.assignee"></v-list-tile-sub-title>
           </v-list-tile-content>
-          <v-list-tile-action>
-            <div class="text-xs-center">
-              <v-chip>
-                <v-avatar class="teal">{{ item.branch.split('-')[0] }}</v-avatar>
-                {{ item.branch.split('-')[1] }}
-              </v-chip>
-            </div>
-          </v-list-tile-action>
        </template>
 
       </v-autocomplete>
@@ -81,12 +73,79 @@
         </v-btn>
         <span>Apps</span>
       </v-tooltip>
-      <v-tooltip bottom>
-        <v-btn icon slot="activator">
-          <v-icon>notifications</v-icon>
-        </v-btn>
-        <span>Notifications</span>
-      </v-tooltip>
+      <div class="text-xs-center">
+        <v-menu
+          :close-on-content-click="false"
+          :nudge-width="200"
+          offset-y
+        >
+          <v-btn icon large class="mr-4" slot="activator">
+            <v-avatar size="32px" tile>
+              <v-icon size="32px">
+                notifications
+              </v-icon>
+            </v-avatar>
+          </v-btn>
+
+          <v-card>
+            <v-list>
+              <v-list-tile avatar>
+                <v-list-tile-avatar>
+                  <img v-if="user && user.profile && user.profile.picture"
+                    src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
+                    alt="Vuetify"
+                  >
+                  <v-icon v-else size="32px">
+                    account_circle
+                  </v-icon>
+                </v-list-tile-avatar>
+
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ user.first_name }} {{ user.last_name }}</v-list-tile-title>
+                  <v-list-tile-sub-title>Full Stack developer</v-list-tile-sub-title>
+                </v-list-tile-content>
+
+                <v-list-tile-action>
+                  <v-btn
+                    class="red--text"
+                    icon
+                  >
+                    <v-icon>favorite</v-icon>
+                  </v-btn>
+                </v-list-tile-action>
+              </v-list-tile>
+            </v-list>
+
+            <v-divider></v-divider>
+
+            <v-list>
+              <v-list-tile>
+                <v-list-tile-action>
+                  <v-icon>
+                    account_circle
+                  </v-icon>
+                </v-list-tile-action>
+                <v-list-tile-title>Profile</v-list-tile-title>
+              </v-list-tile>
+
+              <v-list-tile>
+                <v-list-tile-action>
+                  <v-icon>
+                    settings
+                  </v-icon>
+                </v-list-tile-action>
+                <v-list-tile-title>Settings</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn color="primary" ripple flat @click="$router.push('/logout')">Log out</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+      </div>
       <div class="text-xs-center">
         <v-menu
           v-model="menu"
@@ -169,6 +228,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import { EventBus } from '../../event-bus.js';
 import request from "../../services/request.js";
 import { toggleFullScreen } from '../../utils/common.js';
@@ -184,7 +244,10 @@ export default {
       search: null,
       user: this.$store.getters.user,
       menu: false,
-      search_width: null
+      search_width: null,
+      notifications: {
+        items: []
+      }
     }
   },
   methods: {
@@ -211,6 +274,9 @@ export default {
     }
   },
   computed: {
+    ...mapState([
+      'selected_project'
+    ]),
     selected_project(){
       var selected = this.$store.getters.selected_project ||
       localStorage.getItem('selected_project');
@@ -220,6 +286,12 @@ export default {
       }
       return selected.id;
     }
+  },
+  created(){
+    request.get('notifications/list')
+    .then(response => {
+      this.notifications.items = response.data;
+    })
   },
   mounted(){
     let search_width = this.$refs.search_autocomplete.$el.offsetWidth;
@@ -258,6 +330,9 @@ export default {
       }).finally(() => {
         this.loading_search = false;
       })
+    },
+    selected_project(val){
+      this.recent_search = [];
     }
   }
 }

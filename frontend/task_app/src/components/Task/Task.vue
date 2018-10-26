@@ -51,6 +51,8 @@ export default {
     return {
       class_priority: {
         "task-priority-icon": true,
+        "priority-lowest": this.task.priority == TaskPriority.LOWEST,
+        "priority-low": this.task.priority == TaskPriority.LOW,
         "priority-medium": this.task.priority == TaskPriority.MEDIUM,
         "priority-high": this.task.priority == TaskPriority.HIGH,
         "priority-highest": this.task.priority == TaskPriority.HIGHEST

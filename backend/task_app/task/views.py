@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db.models import F
+from django_filters import rest_framework as filters
 from haystack.query import SearchQuerySet
 from rest_framework import generics
 from rest_framework import status
@@ -11,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from core.exceptions import TaskAppError, TaskAppErrorCode
+from .filters import TaskFilter
 from .models import Task
 from .serializers import (
     TaskSerializer, SimpleUserSerializer, CreateTaskSerializer,
@@ -26,17 +28,19 @@ class TaskViewSet(generics.ListAPIView,
                   viewsets.GenericViewSet):
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
+    filter_backends = (filters.DjangoFilterBackend, )
+    filter_class = TaskFilter
 
-    def get_queryset(self):
-        request = self.request
-        project = request.query_params.get('project')
-        pk = request.query_params.get('id')
-        queryset = self.queryset
-        if project:
-            queryset = queryset.filter(project=project)
-        if pk:
-            queryset = queryset.filter(id=pk)
-        return queryset
+    # def get_queryset(self):
+    #     request = self.request
+    #     project = request.query_params.get('project')
+    #     pk = request.query_params.get('id')
+    #     queryset = self.queryset
+    #     if project:
+    #         queryset = queryset.filter(project=project)
+    #     if pk:
+    #         queryset = queryset.filter(id=pk)
+    #     return queryset
 
     def get_serializer_class(self):
         if self.action == 'assignee_task':
