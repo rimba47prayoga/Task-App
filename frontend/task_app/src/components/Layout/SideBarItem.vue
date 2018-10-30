@@ -9,7 +9,7 @@
         offset-x
       >
         <v-list-tile ripple class="mb-3 mt-3" slot="activator">
-          <v-tooltip right z-index="1000000">
+          <v-tooltip right lazy z-index="1000000">
             <v-list-tile-action slot="activator">
               <img class="project_icon" src="@/assets/project_icon.png" />
             </v-list-tile-action>
@@ -122,8 +122,8 @@ export default {
         {
           icon: "library_books",
           text: "Tasks",
-          link: "/task/list",
-          name: "task"
+          link: `project/${this.$store.getters.selected_project.slug}/task/list`,
+          name: "task-list"
         },
         {
           icon: "history",
@@ -162,7 +162,10 @@ export default {
       this.$store.commit('selectProject', project);
       localStorage.setItem('selected_project', JSON.stringify(project));
       this.$router.push({
-        name: 'task'
+        name: 'task-list',
+        params: {
+          slug: project.slug
+        }
       });
       this.realoadProjectList();
     },
@@ -198,6 +201,7 @@ export default {
     selectedProject(){
       return this.$store.getters.selected_project || {
         name: 'Project Name',
+        slug: 'None',
         project_type: 'Software Project'
       }
     }

@@ -39,7 +39,7 @@ window.onload = function() {
 };
 
 window.onresize = function() {
-  if (router.currentRoute.name == 'task') {
+  if (router.currentRoute.name == 'task-list') {
     resizeTaskContainer();
   }
 };
@@ -50,5 +50,3 @@ new Vue({
   router,
   render: h => h(App)
 }).$mount('#app');
-
-export const EventBus = new Vue();

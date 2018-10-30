@@ -22,7 +22,7 @@
     </v-btn>
     <v-btn
       @click="showUndo = false"
-      flat
+      icon
       class="black--text"
     >
       <v-icon>clear</v-icon>
@@ -339,16 +339,14 @@ export default {
     },
     reloadTask(){
       this.isLoading = true;
-      var url = 'task/list';
+
       let selected_project = this.$store.getters.selected_project;
       if (selected_project == null){
         this.isLoading = false;
         return;
       }
-      url = addQueryParam(url, {
-        project: selected_project.id
-      });
 
+      var url = `project/${this.$route.params.slug}/tasks`;
       let search = this.$store.getters.search;
       if (search != null && search != {}){
         url = addQueryParam(url, {
@@ -582,11 +580,12 @@ export default {
       this.isMoved = false;
     },
     move(from){
+      var progress = from.draggedContext.element.progress;
+      if (progress == TaskProgress.DONE) return false;
       let drag_area = from.to;
       drag_area.classList.remove('focus-next-drag');
       drag_area.classList.add('target-locked');
-      var progress = from.draggedContext.element.progress;
-      if (progress == TaskProgress.DONE) return false;
+
       let task_id = Number(from.dragged.dataset.taskid);
       this.latestDragged = {
         task_id: task_id,
@@ -629,6 +628,7 @@ export default {
     }
   },
   created(){
+    resizeTaskContainer();
     this.reloadTask();
     request.get('task/list/assignee_task')
     .then(response => {
@@ -656,9 +656,6 @@ export default {
     search(obj){
       this.reloadTask();
     }
-  },
-  mounted(){
-    resizeTaskContainer();
   }
 };
 </script>

@@ -35,6 +35,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import NProgress from 'nprogress';
 
 import NavBar from './components/Layout/NavBar';
 import SideBar from './components/Layout/SideBar';
@@ -64,7 +65,13 @@ export default {
     ]),
     breadcrumbs(){
       let selected_project = this.$store.getters.selected_project;
-      return [ `${selected_project.name} - ${selected_project.project_type}`, `${selected_project.board_name} Board` ]
+      if (selected_project){
+        return [
+          `${selected_project.name} - ${selected_project.project_type}`,
+          `${selected_project.board_name} Board`
+        ]
+      }
+      return [];
     }
   },
   watch: {
@@ -74,13 +81,22 @@ export default {
       }
       if (obj.table == 'task'){
         this.$router.push({
-          name: 'task',
+          name: 'task-list',
+          params: {
+            slug: this.$store.getters.selected_project.slug
+          },
           query: {
             q: window.encodeURIComponent(obj.title)
           }
         })
       }
     }
+  },
+  beforeCreate(){
+    NProgress.start();
+  },
+  mounted(){
+    NProgress.done();
   }
 };
 </script>
@@ -112,7 +128,9 @@ export default {
 
 #nprogress .bar {
   background: #42A5F5;
-  height: 3px;
+}
+#nprogress {
+  transition: none !important;
 }
 .theme--light.v-list .v-list__tile--link:hover {
   background: rgba(9, 30, 66, 0.04) !important;
@@ -137,5 +155,9 @@ label.input-label {
 }
 span.required {
   color: #ff5252;
+}
+.v-tooltip__content {
+  opacity: 1 !important;
+  border-radius: 5px !important;
 }
 </style>

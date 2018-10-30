@@ -17,7 +17,13 @@ export const store = new Vuex.Store({
     user: JSON.parse(localStorage.getItem('user')) || {},
     isLoggedIn: VueCookies.get('__isLn') == '1',
     currentRoute: {},
-    selected_project: localStorage.getItem('selected_project'),
+    selected_project: localStorage.getItem('selected_project') || {
+      id: 0,
+      name: 'Project Name',
+      slug: 'None',
+      project_type: 'Software Project',
+      board_name: 'None'
+    },
     search: null
   },
   mutations: {
@@ -62,7 +68,7 @@ export const store = new Vuex.Store({
           localStorage.setItem('user', JSON.stringify(response.data.user));
           AuthService.setToken(response.data.token);
           commit('auth_success', response.data);
-          router.push(localStorage.getItem('nextUrl'));
+          router.push(localStorage.getItem('nextUrl') || '/');
         })
         .catch(err => {
           console.log(err);

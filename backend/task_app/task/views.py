@@ -31,16 +31,15 @@ class TaskViewSet(generics.ListAPIView,
     filter_backends = (filters.DjangoFilterBackend, )
     filter_class = TaskFilter
 
-    # def get_queryset(self):
-    #     request = self.request
-    #     project = request.query_params.get('project')
-    #     pk = request.query_params.get('id')
-    #     queryset = self.queryset
-    #     if project:
-    #         queryset = queryset.filter(project=project)
-    #     if pk:
-    #         queryset = queryset.filter(id=pk)
-    #     return queryset
+    def get_queryset(self):
+        project = self.request.query_params.get('project')
+        pk = self.request.query_params.get('id')
+        queryset = self.queryset
+        if project:
+            queryset = queryset.filter(project=project)
+        if pk:
+            queryset = queryset.filter(id=pk)
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'assignee_task':
@@ -83,13 +82,6 @@ class TaskViewSet(generics.ListAPIView,
         queryset = User.objects.all()
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-    @action(methods=['get'], detail=False)
-    def generate_branch(self, request):
-        result = OrderedDict([
-            ('branch', Task.generate_branch())
-        ])
-        return Response(result)
 
     @action(methods=['put'], detail=True)
     def update_progress(self, request, pk=None):

@@ -26,7 +26,7 @@ class TaskAppSchedule(object):
 
         deadlines = Task.objects.filter(**filter_kwargs)
         filter_kwargs = {
-            'deadline__gte': today,
+            'deadline__gt': today,
             'progress__in': [TaskChoices.TODO, TaskChoices.IN_PROGRESS]
         }
         pending_task = Task.objects.filter(**filter_kwargs)
@@ -35,7 +35,7 @@ class TaskAppSchedule(object):
             for task in deadlines:
                 deadline_date = task.deadline.strftime('%d, %b %Y')
                 if task.assignee:
-                    message = f'Please complete this task {task.branch_name},' \
+                    message = f'Please complete this task {task.branch_name}, ' \
                               f'the deadline will be ended at {deadline_date}.'
 
                     notification_id = Notifications.generate_notification_id(
@@ -43,9 +43,6 @@ class TaskAppSchedule(object):
                         subject=DEADLINE,
                         branch_name=task.branch_name
                     )
-                    if (Notifications.objects.filter(notification_id=notification_id)
-                                             .exists()):
-                        continue
                     notification = Notifications()
                     notification.notification_id = notification_id
                     notification.subject = DEADLINE

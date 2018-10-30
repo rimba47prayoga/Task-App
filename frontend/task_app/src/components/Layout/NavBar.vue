@@ -78,71 +78,58 @@
           :close-on-content-click="false"
           :nudge-width="200"
           offset-y
+          min-width="380"
+          max-width="380"
         >
-          <v-btn icon large class="mr-4" slot="activator">
-            <v-avatar size="32px" tile>
-              <v-icon size="32px">
-                notifications
-              </v-icon>
-            </v-avatar>
+          <v-btn icon large class="mr-4" slot="activator" @click="pullNotifications()">
+            <v-badge color="red" overlap>
+              <span slot="badge">{{ notifications.unread_count }}</span>
+                <v-icon>
+                  notifications
+                </v-icon>
+            </v-badge>
           </v-btn>
 
           <v-card>
-            <v-list>
-              <v-list-tile avatar>
-                <v-list-tile-avatar>
-                  <img v-if="user && user.profile && user.profile.picture"
-                    src="https://cdn.vuetifyjs.com/images/logos/logo.svg"
-                    alt="Vuetify"
-                  >
-                  <v-icon v-else size="32px">
-                    account_circle
-                  </v-icon>
-                </v-list-tile-avatar>
-
-                <v-list-tile-content>
-                  <v-list-tile-title>{{ user.first_name }} {{ user.last_name }}</v-list-tile-title>
-                  <v-list-tile-sub-title>Full Stack developer</v-list-tile-sub-title>
-                </v-list-tile-content>
-
-                <v-list-tile-action>
-                  <v-btn
-                    class="red--text"
-                    icon
-                  >
-                    <v-icon>favorite</v-icon>
-                  </v-btn>
-                </v-list-tile-action>
-              </v-list-tile>
-            </v-list>
-
+            <v-toolbar card dense class="white-grey-blue">
+              <v-toolbar-title><h4>Notifications</h4></v-toolbar-title>
+            </v-toolbar>
             <v-divider></v-divider>
+            <div style="max-height: 400px; min-height: 400px;overflow-y:auto">
+              <v-flex xs12 v-if="notifications.isLoading">
+                <v-progress-circular
+                  :size="60"
+                  :width="7"
+                  color="primary"
+                  indeterminate
+                  class="center-content"
+                ></v-progress-circular>
+              </v-flex>
 
-            <v-list>
-              <v-list-tile>
-                <v-list-tile-action>
-                  <v-icon>
-                    account_circle
-                  </v-icon>
-                </v-list-tile-action>
-                <v-list-tile-title>Profile</v-list-tile-title>
-              </v-list-tile>
+              <v-list
+                v-if="!notifications.isLoading"
+                v-for="item in notifications.items"
+                :key="item.id"
+                three-line
+                class="pa-0"
+              >
+                <v-list-tile ripple @click.prevent>
 
-              <v-list-tile>
-                <v-list-tile-action>
-                  <v-icon>
-                    settings
-                  </v-icon>
-                </v-list-tile-action>
-                <v-list-tile-title>Settings</v-list-tile-title>
-              </v-list-tile>
-            </v-list>
-
-            <v-card-actions>
-              <v-spacer></v-spacer>
-
-              <v-btn color="primary" ripple flat @click="$router.push('/logout')">Log out</v-btn>
-            </v-card-actions>
+                  <v-list-tile-content>
+                    <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                    <v-list-tile-sub-title>{{ item.message }}</v-list-tile-sub-title>
+                  </v-list-tile-content>
+                  <v-list-tile-action>
+                    <v-badge color="red" overlap>
+                      <span slot="badge">1</span>
+                    </v-badge>
+                  </v-list-tile-action>
+                </v-list-tile>
+                <v-divider></v-divider>
+              </v-list>
+            </div>
+              <v-btn block flat class="ma-0 white-grey-blue">See All Notifications</v-btn>
+            <v-divider></v-divider>
           </v-card>
         </v-menu>
       </div>
@@ -246,7 +233,9 @@ export default {
       menu: false,
       search_width: null,
       notifications: {
-        items: []
+        isLoading: false,
+        items: [],
+        unread_count: 0
       }
     }
   },
@@ -271,6 +260,45 @@ export default {
     },
     FullScreen(){
       toggleFullScreen();
+    },
+    pullNotifications(){
+      this.notifications.isLoading = true;
+      request.get('notifications/list')
+      .then(response => {
+        let notifications = [];
+        if (!response.data.length){
+          return;
+        }
+        let unread_notif_id = [];
+        response.data.map((item, index) => {
+          if (!item.is_read){  // count unread notifications
+            if (unread_notif_id.indexOf(item.notification_id) > -1){
+              notifications.map((notif, index) => {
+                if (notif.notification_id == item.notification_id){
+                  item.unread_count += 1;
+                }
+              })
+            } else {
+              item.unread_count = 1;
+            }
+          }
+          notifications.push(item);
+        });
+        this.notifications.items = notifications;
+      })
+      .finally(() => {
+        this.notifications.isLoading = false;
+      })
+    },
+    pullNotificationsCount(){
+      request.get('notifications/list/unread_count')
+      .then(response => {
+        if (response.data.count > this.notifications.unread_count){
+          let diff = response.data.count - this.notifications.unread_count;
+          alert(`${diff} new notifications`);
+          this.notifications.unread_count = response.data.count;
+        }
+      })
     }
   },
   computed: {
@@ -288,14 +316,15 @@ export default {
     }
   },
   created(){
-    request.get('notifications/list')
+    request.get('notifications/list/unread_count')
     .then(response => {
-      this.notifications.items = response.data;
+      this.notifications.unread_count = response.data.count;
     })
   },
   mounted(){
     let search_width = this.$refs.search_autocomplete.$el.offsetWidth;
     this.search_width = search_width;
+    setInterval(this.pullNotificationsCount, 30000);
   },
   watch: {
     search(val){
@@ -333,6 +362,7 @@ export default {
     },
     selected_project(val){
       this.recent_search = [];
+      this.cache_result = [];
     }
   }
 }

@@ -6,7 +6,7 @@ from .choices import *
 
 
 class Notifications(BaseModel):
-    notification_id = models.CharField(unique=True, max_length=100)
+    notification_id = models.CharField(max_length=100)
     user = models.ForeignKey(User, related_name='recipients', on_delete=models.CASCADE)
     subject = models.PositiveSmallIntegerField(
         choices=SUBJECT_CHOICES,
@@ -14,7 +14,7 @@ class Notifications(BaseModel):
     )
     title = models.CharField(max_length=255)
     message = models.TextField()
-    is_active = models.BooleanField(default=True)
+    is_read = models.BooleanField(default=False)
     created_by = None
 
     def __str__(self):

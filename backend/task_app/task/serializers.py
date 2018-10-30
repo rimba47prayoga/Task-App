@@ -32,7 +32,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = '__all__'
+        exclude = ['is_deleted', 'deleted_time']
 
 
 class CreateTaskSerializer(serializers.Serializer):

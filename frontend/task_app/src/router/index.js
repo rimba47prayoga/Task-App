@@ -19,9 +19,14 @@ let router = new Router({
     {
       path: '',
       name: 'dashboard',
-      component: lazyLoad('Dashboard'),
+      component: lazyLoad('Dashboard')
+    },
+    {
+      path: '/project/:slug/task/list',
+      name: 'task-list',
+      component: lazyLoad('Project/Project'),
       meta: {
-        breadcrumbs: ['dashboard']
+        requireAuth: true
       }
     },
     {
@@ -30,7 +35,6 @@ let router = new Router({
       component: lazyLoad('Task/TaskList'),
       meta: {
         requireAuth: true,
-        breadcrumbs: ['task', 'list']
       }
     },
     {
@@ -56,11 +60,19 @@ let router = new Router({
 
 NProgress.configure({
   showSpinner: false,
-  speed: 1000
+  minimum: 0.08,
+  easing: 'ease',
+  positionUsing: '',
+  speed: 1000,
+  trickle: true,
+  trickleRate: 0.02,
+  trickleSpeed: 800
 });
 
 router.beforeEach((to, _from, next) => {
-  NProgress.start();
+  if (_from.name) {
+    NProgress.start();
+  }
   if (to.matched.some(record => record.meta.requireAuth)) {
     if (!store.getters.isLoggedIn) {
       localStorage.setItem('nextUrl', to.fullPath);
@@ -91,9 +103,12 @@ router.beforeEach((to, _from, next) => {
 
 router.afterEach((to, from) => {
   store.dispatch('setRoute', to);
-  NProgress.done();
+  if (from.name) {
+    NProgress.done();
+  }
+
   if (localStorage.getItem('projects') == null) {
-    let blocked_url = ['task']
+    let blocked_url = ['task-list'];
     if (blocked_url.indexOf(to.name) > -1) {
       request.get('project/').then(response => {
         if (!response.data.length) {
