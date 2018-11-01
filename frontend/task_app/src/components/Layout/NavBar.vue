@@ -295,7 +295,10 @@ export default {
       .then(response => {
         if (response.data.count > this.notifications.unread_count){
           let diff = response.data.count - this.notifications.unread_count;
-          alert(`${diff} new notifications`);
+          this.$store.dispatch('setNotifications', {
+            show: true,
+            count: diff
+          });
           this.notifications.unread_count = response.data.count;
         }
       })
@@ -389,5 +392,9 @@ nav .v-autocomplete .v-input__slot {
 }
 nav.task-navbar .v-toolbar__content {
   padding: 0;
+}
+.v-toolbar__content .v-input__prepend-inner{
+  margin-right: 5px;
+  margin-left: 5px;
 }
 </style>

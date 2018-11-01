@@ -27,6 +27,32 @@
         >
           <router-view></router-view>
         </transition>
+        <v-snackbar
+          :value="this.$store.getters.notifications.show"
+          top
+          right
+          multi-line
+          :timeout="60000"
+          color="white"
+          class="black--text"
+        >
+          <v-badge color="red" overlap class="mr-3">
+              <span slot="badge">{{ this.$store.getters.notifications.count }}</span>
+                <v-icon large>
+                  notifications
+                </v-icon>
+            </v-badge>
+          New notifications
+
+          <v-btn
+            color="blue"
+            flat
+            @click="closeNotifications()"
+          >
+            Close
+          </v-btn>
+        </v-snackbar>
+        <create-task></create-task>
       </v-content>
     </v-app>
     <router-view v-else></router-view>
@@ -39,6 +65,7 @@ import NProgress from 'nprogress';
 
 import NavBar from './components/Layout/NavBar';
 import SideBar from './components/Layout/SideBar';
+import CreateTask from "./components/Task/CreateTask";
 
 import { capitalize as UtilCapitalize } from './utils/common.js';
 
@@ -46,7 +73,8 @@ export default {
   name: "app",
   components: {
     NavBar,
-    SideBar
+    SideBar,
+    CreateTask
   },
   methods: {
     capitalize(value){
@@ -57,6 +85,12 @@ export default {
         return UtilCapitalize(this.breadcrumbs[1])
       }
       return []
+    },
+    closeNotifications(){
+      this.$store.dispatch('setNotifications', {
+        show: false,
+        count: 0
+      })
     }
   },
   computed: {

@@ -2,7 +2,6 @@
 <v-container ma-0 pt-0 pb-0 style="max-width: unset;">
   <v-snackbar
     v-model="showUndo"
-    :absolute="true"
     :auto-height="true"
     :right="true"
     :timeout="1000000"
@@ -10,22 +9,15 @@
     color="white"
     class="black--text task-snackbar"
     >
-    <v-icon class="primary--text mr-3">warning</v-icon>
-    Task has changed :
+    <v-icon class="primary--text">warning</v-icon>
+    Task has changed
     <v-btn
       color="blue"
       flat
       @click="undoMovedTask()"
-      class="ma-0 mr-3"
+      class="ml-2"
     >
       Undo
-    </v-btn>
-    <v-btn
-      @click="showUndo = false"
-      icon
-      class="black--text"
-    >
-      <v-icon>clear</v-icon>
     </v-btn>
   </v-snackbar>
 
@@ -61,7 +53,7 @@
       </v-flex>
       <v-spacer></v-spacer>
 
-      <v-flex class="ml-2 w-19 filter-task-list">
+      <v-flex class="ml-2 w-19 input-flat-hover">
         <v-combobox
           v-model="filters.assignee"
           :items="filters.assignee_items"
@@ -249,17 +241,26 @@
       <span>Search</span>
       </v-tooltip>
     </v-speed-dial>
-    <create-task ref="dialogCreateTask" v-on:created-task="reloadTask()"></create-task>
+
+    <detail-task
+      v-bind:show="detail_task.show"
+      v-bind:id="detail_task.id"
+      v-on:close-dialog-detail="detail_task = {
+        show: false,
+        id: 0
+      };"
+    ></detail-task>
 </v-container>
 </template>
 
 <script>
-// components
 import { mapState } from 'vuex';
+import { EventBus } from '../../event-bus.js';
+
+// components
 import draggable from 'vuedraggable';
 import Task from "./Task";
-import CreateTask from "./CreateTask";
-
+import DetailTask from './DetailTask';
 // constants
 import TaskProgress from "../../constants/TaskProgress.js";
 import TaskType from "../../constants/TaskType.js";
@@ -276,10 +277,10 @@ import '../../styles/task-list.css';
 export default {
   components: {
     Task,
-    CreateTask,
-    draggable
+    draggable,
+    DetailTask
   },
-  data: () => {
+  data(){
     return {
       isLoading: false,
       tasks: {
@@ -313,6 +314,10 @@ export default {
       filters: {
         assignee: null,
         assignee_items: []
+      },
+      detail_task: {
+        show: false,
+        id: 0
       }
     };
   },
@@ -495,7 +500,9 @@ export default {
         } else {
           card.style.setProperty("background-color", "");
         }
-      })
+      });
+      this.detail_task.show = true;
+      this.detail_task.id = Number(task_id);
     },
 
     /** get next drag element by task progress
@@ -545,9 +552,9 @@ export default {
       let next_drag_element = this.getNextDraggingElement(target);
       if (!next_drag_element) return false;
       next_drag_element.drag_area.classList.remove('target-locked');
-      Array.prototype.forEach.call(next_drag_element.drag_area.children, (task, index) => {
-        task.classList.remove('hide')
-      });
+      // Array.prototype.forEach.call(next_drag_element.drag_area.children, (task, index) => {
+      //   task.classList.remove('hide')
+      // });
       let drag_area = document.querySelectorAll('div.drag-area');
       Array.prototype.forEach.call(drag_area, (elem) => {
         elem.classList.remove('focus-next-drag');
@@ -560,9 +567,9 @@ export default {
       next_drag_element.drag_area.classList.add('focus-next-drag');
 
       // hide task
-      Array.prototype.forEach.call(next_drag_element.drag_area.children, (task, index) => {
-        task.classList.add('hide')
-      });
+      // Array.prototype.forEach.call(next_drag_element.drag_area.children, (task, index) => {
+      //   task.classList.add('hide')
+      // });
 
       // show blur effect
       let blur_tasks = document.getElementsByClassName('blur-task');
@@ -656,6 +663,11 @@ export default {
     search(obj){
       this.reloadTask();
     }
+  },
+  mounted(){
+    EventBus.$on('created-task', () => {
+      this.reloadTask();
+    });
   }
 };
 </script>
@@ -668,7 +680,7 @@ export default {
   transition: .05s ease-in-out;
 }
 
-.flex.ml-2.filter-task-list:hover .v-input__slot {
+.flex.ml-2.input-flat-hover:hover .v-input__slot {
   background: #EBECF0 !important;
 }
 </style>

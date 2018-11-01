@@ -30,6 +30,14 @@ let router = new Router({
       }
     },
     {
+      path: '/project/:slug/task/list/:branch',
+      name: 'task-detail',
+      component: lazyLoad('Dashboard'),
+      meta: {
+        requireAuth: true
+      }
+    },
+    {
       path: '/task/list',
       name: 'task',
       component: lazyLoad('Task/TaskList'),

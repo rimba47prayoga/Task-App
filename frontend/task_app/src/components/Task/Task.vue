@@ -7,7 +7,7 @@
             class="white-card"
             :data-taskid="task.id"
           >
-            <v-tooltip right open-delay="800">
+            <v-tooltip bottom open-delay="800" max-width="160" nudge-top="20">
               <v-card-title class="primary-title task-title" slot="activator">
                 <div>{{ task.title }}</div>
               </v-card-title>
@@ -24,7 +24,7 @@
               >
                 <v-icon
                 v-if="task.assignee.avatar == null"
-                class="task-user-icon mr-2"
+                class="task-user-icon mr-1"
                 slot="activator"
                 >account_circle
                 </v-icon>
@@ -32,7 +32,17 @@
               </v-tooltip>
               <!-- TODO: handle it if user has avatar image -->
 
-              <div class="task-branch">{{ task.branch }}</div>
+              <div class="task-branch">
+                <router-link :to="{
+                  name: 'task-detail',
+                  params: {
+                    slug: $store.getters.selected_project.slug,
+                    branch: task.branch
+                  }
+                }">
+                  {{ task.branch }}
+                </router-link>
+              </div>
               <v-spacer></v-spacer>
               {{ task.deadline }}
             </v-card-actions>
@@ -45,6 +55,8 @@
 <script>
 import TaskPriority from "../../constants/TaskPriority.js";
 import TaskType from "../../constants/TaskType.js";
+
+import * as TaskUtils from "./utils/task.js";
 
 export default {
   data() {
@@ -70,33 +82,10 @@ export default {
   },
   methods: {
     getTaskTypeIcon(){
-      let icon;
-      switch(this.task.task_type){
-        case TaskType.TASK:
-          icon = "check_box";
-          break;
-        case TaskType.SUB_TASK:
-          icon = "branding_watermark";
-          break;
-        case TaskType.BUG:
-          icon = "bug_report";
-          break;
-      };
-      return icon;
+      return TaskUtils.getTaskTypeIcon(this.task.task_type);
     },
     getTaskPriorityIcon(){
-      let icon;
-      switch(this.task.priority){
-        case TaskPriority.LOWEST:
-        case TaskPriority.LOW:
-          icon = "arrow_downward";
-          break;
-        case TaskPriority.MEDIUM:
-        case TaskPriority.HIGH:
-        case TaskPriority.HIGHEST:
-        icon = "arrow_upward"
-      };
-      return icon;
+      return TaskUtils.getTaskPriorityIcon(this.task.priority);
     }
   }
 }
@@ -162,8 +151,13 @@ export default {
 .mb-6px {
   margin-bottom: 6px !important;
 }
-.task-branch {
+.task-branch a {
   color: #5E6C84;
   font-weight: 500;
+  font-size: 15px;
+  text-decoration: none;
+}
+.task-branch a:hover{
+  text-decoration: underline;
 }
 </style>

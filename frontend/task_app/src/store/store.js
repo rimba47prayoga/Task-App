@@ -24,7 +24,11 @@ export const store = new Vuex.Store({
       project_type: 'Software Project',
       board_name: 'None'
     },
-    search: null
+    search: null,
+    notifications: {
+      show: false,
+      count: 0
+    }
   },
   mutations: {
     setSidebar(state, sidebar) {
@@ -51,6 +55,9 @@ export const store = new Vuex.Store({
     },
     setSearch(state, payload) {
       state.search = payload;
+    },
+    setNotifications (state, payload) {
+      state.notifications = payload;
     }
   },
   actions: {
@@ -85,6 +92,9 @@ export const store = new Vuex.Store({
     },
     setSearch({ commit }, payload) {
       commit('setSearch', payload);
+    },
+    setNotifications ({ commit }, payload) {
+      commit('setNotifications', payload);
     }
   },
   getters: {
@@ -109,6 +119,7 @@ export const store = new Vuex.Store({
       }
       return null;
     },
-    search: ({ search }) => search
+    search: ({ search }) => search,
+    notifications: ({ notifications }) => notifications
   }
 });

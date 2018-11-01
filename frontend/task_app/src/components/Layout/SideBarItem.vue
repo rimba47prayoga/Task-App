@@ -122,7 +122,7 @@ export default {
         {
           icon: "library_books",
           text: "Tasks",
-          link: `project/${this.$store.getters.selected_project.slug}/task/list`,
+          link: `/project/${this.$store.getters.selected_project.slug}/task/list`,
           name: "task-list"
         },
         {

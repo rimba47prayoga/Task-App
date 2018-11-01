@@ -1,12 +1,12 @@
 <template>
 
   <v-dialog
-  :value="isCreatingTask"
-  :persistent="true"
-  :no-click-animation="true"
-  :lazy="true"
-  max-width="800px"
-  scrollable
+    :value="isCreatingTask"
+    :persistent="true"
+    :no-click-animation="true"
+    :lazy="true"
+    max-width="800px"
+    scrollable
   >
     <v-card>
       <v-card-title
@@ -439,7 +439,8 @@
 </template>
 
 <script>
-import {mapState} from "vuex";
+import { mapState } from "vuex";
+import { EventBus } from '../../event-bus.js';
 
 import TaskType from "../../constants/TaskType.js";
 import TaskPriority from "../../constants/TaskPriority.js";
@@ -564,7 +565,7 @@ export default {
         request.post('task/list', payload)
         .then(response => {
           this.closeDialogCreateTask();
-          this.$emit('created-task');
+          EventBus.$emit('created-task');
         }).catch(err => {
           console.log(err);
         })

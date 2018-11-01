@@ -10,7 +10,7 @@
   >
     <side-bar-item
       v-bind:mini_variant="mini_variant"
-      v-on:set-mini-variant="mini_variant = !mini_variant"
+      v-on:set-mini-variant="setMiniVariant()"
     ></side-bar-item>
   </v-navigation-drawer>
 </template>
@@ -27,8 +27,16 @@ export default {
   },
   data: () => ({
     drawer: true,
-    mini_variant: true,
+    mini_variant: localStorage.getItem('mini_variant') == null
+                    ? true
+                    : localStorage.getItem('mini_variant') == 'true',
   }),
+  methods: {
+    setMiniVariant(){
+      this.mini_variant = !this.mini_variant;
+      localStorage.setItem('mini_variant', this.mini_variant)
+    }
+  },
   computed: {
     user(){
       let user = this.$store.getters.user;
