@@ -20,5 +20,18 @@ class BaseModelQueryset(models.QuerySet):
 
 class BaseModelManager(models.Manager):
 
+    @property
+    def __queryset(self):
+        return BaseModelQueryset(model=self.model, using=self._db)
+
     def get_queryset(self):
-        return BaseModelQueryset(self.model, using=self._db).active()
+        return self.__queryset.active()
+
+    def get(self, **kwargs):
+        return self.get_queryset().get(**kwargs)
+
+    def filter(self, **kwargs):
+        return self.get_queryset().filter(**kwargs)
+
+    def all(self):
+        return self.get_queryset()

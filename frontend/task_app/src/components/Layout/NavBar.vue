@@ -291,6 +291,10 @@ export default {
       })
     },
     pullNotificationsCount(){
+      let is_logged_in = this.$store.getters.isLoggedIn;
+      if (!is_logged_in){
+        return;
+      }
       request.get('notifications/list/unread_count')
       .then(response => {
         if (response.data.count > this.notifications.unread_count){

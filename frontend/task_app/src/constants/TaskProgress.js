@@ -5,8 +5,8 @@ export default {
   TEST: 3,
   DONE: 4,
 
-  getProgressDisplay() {
-    return [
+  getProgressDisplay(progress = null) {
+    const result = [
       {
         display: 'TO DO',
         type: this.TODO
@@ -28,5 +28,12 @@ export default {
         type: this.DONE
       }
     ];
+    if (progress) {
+      progress = Number(progress);
+      return result.filter(item => {
+        return item.type == progress;
+      })[0];
+    }
+    return result;
   }
 };

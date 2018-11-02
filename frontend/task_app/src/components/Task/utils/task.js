@@ -31,4 +31,10 @@ function getTaskPriorityIcon(priority){
   return icon;
 }
 
-export { getTaskTypeIcon, getTaskPriorityIcon }
+function FormatDate (date) {
+  if (!date) return;
+  let [year, month, day] = date.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+export { getTaskTypeIcon, getTaskPriorityIcon, FormatDate }
