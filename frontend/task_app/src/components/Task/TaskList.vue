@@ -47,10 +47,7 @@
     mb-2
     style="max-width: 100%"
   >
-    <v-layout align-center justify-space-between row fill-height pa-0 ml-1 mr-1>
-      <v-flex xs8 style="color: #616161;" class="headline">
-        Task List
-      </v-flex>
+    <sub-header text="Task List">
       <v-spacer></v-spacer>
 
       <v-flex class="ml-2 w-19 input-flat-hover">
@@ -100,7 +97,7 @@
           </template>
         </v-combobox>
       </v-flex>
-    </v-layout>
+    </sub-header>
   </v-container>
 
   <v-container pa-0 style="max-width: unset;">
@@ -264,6 +261,7 @@ import { EventBus } from '../../event-bus.js';
 import draggable from 'vuedraggable';
 import Task from "./Task";
 import DetailTask from './DetailTask';
+import SubHeader from '../Widget/SubHeader';
 // constants
 import TaskProgress from "../../constants/TaskProgress.js";
 import TaskType from "../../constants/TaskType.js";
@@ -281,7 +279,8 @@ export default {
   components: {
     Task,
     draggable,
-    DetailTask
+    DetailTask,
+    SubHeader
   },
   data(){
     return {

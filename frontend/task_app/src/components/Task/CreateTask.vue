@@ -648,30 +648,6 @@ export default {
 </script>
 
 <style>
-.sub-task, .theme--light.sub-task,
-.task, .theme--light.task {
-  color:#64B5F6;
-}
-.bug, .theme--light.bug {
-  color: #E53935;
-}
-
-.priority-lowest, .theme--light.priority-lowest {
-  color: #66BB6A;
-}
-.priority-low, .theme--light.priority-low {
-  color: #2E7D32;
-}
-.priority-medium, .theme--light.priority-medium {
-  color: #F57C00;
-}
-.priority-high, .theme--light.priority-high {
-  color: #E53935;
-}
-.priority-highest, .theme--light.priority-highest {
-  color: #B71C1C;
-}
-
 .v-input__icon.v-input__icon--clear i{
   font-size: 15px;
 }

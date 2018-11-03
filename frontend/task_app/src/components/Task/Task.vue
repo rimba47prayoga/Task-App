@@ -120,21 +120,6 @@ export default {
 /* .priority-medium, .theme--light.priority-medium{
   color: #FB8C00;
 } */
-.priority-lowest, .theme--light.priority-lowest {
-  color: #66BB6A;
-}
-.priority-low, .theme--light.priority-low {
-  color: #2E7D32;
-}
-.priority-medium, .theme--light.priority-medium {
-  color: #F57C00;
-}
-.priority-high, .theme--light.priority-high {
-  color: #E53935;
-}
-.priority-highest, .theme--light.priority-highest {
-  color: #B71C1C;
-}
 .sub-task, .theme--light.sub-task {
   color:#64B5F6;
 }

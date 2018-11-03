@@ -105,3 +105,10 @@ class UpdateProgressSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['old_progress', 'new_progress']
+
+
+class TaskDashboardSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'task_type', 'priority', 'branch_name']

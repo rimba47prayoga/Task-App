@@ -11,9 +11,11 @@
       <v-card-title
         class="blue darken-3 py-3 title white--text mb-2"
       >
-        {{ $store.getters.selected_project.name }} - {{ $store.getters.selected_project.project_type }} /
-        <v-icon class="ml-1 mr-1 white--text">{{ task.task_type_icon }}</v-icon>
-        {{ task.branch }}
+        {{ $store.getters.selected_project.board_name }} Board /
+        <div class="subheading">
+          <v-icon class="ml-1 mr-1 white--text" style="font-size: 19px;">{{ task.task_type_icon }}</v-icon>
+          {{ task.branch }}
+        </div>
         <v-spacer></v-spacer>
         <v-btn icon depressed class="ma-0 mr-3" @click.prevent>
           <v-icon class="white--text">visibility</v-icon>
@@ -176,9 +178,8 @@
                   solo
                   hide-details
                   class="input-hover"
-                  @change="editDeadline()"
                 ></v-text-field>
-                <v-date-picker v-model="task.deadline" @input="$refs.select_deadline.save(task.deadline)"></v-date-picker>
+                <v-date-picker v-model="task.deadline" @input="$refs.select_deadline.save(task.deadline); editDeadline()"></v-date-picker>
               </v-menu>
             </v-flex>
 

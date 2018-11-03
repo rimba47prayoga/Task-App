@@ -14,15 +14,15 @@ from rest_framework.decorators import action
 from core.exceptions import TaskAppError, TaskAppErrorCode
 from .filters import TaskFilter
 from .models import Task
+from .pagination import TaskDashboardPagination
 from .serializers import (
     TaskSerializer, SimpleUserSerializer, CreateTaskSerializer,
-    UpdateProgressSerializer
+    UpdateProgressSerializer, TaskDashboardSerializer
 )
 from .utils import TaskHighlighter
 
 
-class TaskViewSet(generics.ListAPIView,
-                  generics.RetrieveAPIView,
+class TaskViewSet(generics.RetrieveAPIView,
                   generics.CreateAPIView,
                   generics.UpdateAPIView,
                   viewsets.GenericViewSet):
@@ -48,18 +48,9 @@ class TaskViewSet(generics.ListAPIView,
             return CreateTaskSerializer
         elif self.action == 'update_progress':
             return UpdateProgressSerializer
+        elif self.action == 'dashboard':
+            return TaskDashboardSerializer
         return super(TaskViewSet, self).get_serializer_class()
-
-    def list(self, request, *args, **kwargs):
-        project = request.query_params.get('project')
-        if not project:
-            raise TaskAppError(
-                error_code=TaskAppErrorCode.NOT_SELECT_PROJECT,
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
-        import time
-        time.sleep(1)
-        return super(TaskViewSet, self).list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -108,6 +99,17 @@ class TaskViewSet(generics.ListAPIView,
         instance.progress -= 1
         instance.save()
         return Response({'progress': instance.progress})
+
+    @action(methods=['get'], detail=False)
+    def dashboard(self, request, **kwargs):
+
+        # must select_related to get branch_name property
+        queryset = (self.queryset.filter(assignee=request.user.id)
+                                 .select_related('project').order_by('-id'))
+        paginator = TaskDashboardPagination()
+        queryset = paginator.paginate_queryset(queryset=queryset, request=request)
+        serializer = self.get_serializer(instance=queryset, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class SearchTaskViewSet(viewsets.ReadOnlyModelViewSet):
