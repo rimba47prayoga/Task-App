@@ -145,26 +145,28 @@
           :id="'blur_task_' + key"
           class="blur-task hide"
         ></div>
-        <draggable
-          element="div"
-          class="drag-area"
-          v-model="tasks[key]"
-          @choose="chooseTask"
-          @start="start"
-          @end="end"
-          @sort="sort"
-          :move="move"
-          :options="dragOptions"
-          :data-progress="key"
-        >
-          <v-card
-            v-for="task in tasks[key]" :key="task.id"
-            class="black--text mb-1 mt-1 bg-none"
-            :data-taskid="task.id"
+        <div @dblclick.stop="showTaskDetail" style="height: 100%;">
+          <draggable
+            element="div"
+            class="drag-area"
+            v-model="tasks[key]"
+            @choose="chooseTask"
+            @start="start"
+            @end="end"
+            @sort="sort"
+            :move="move"
+            :options="dragOptions"
+            :data-progress="key"
           >
-            <task v-bind:task="task"></task>
-          </v-card>
-        </draggable>
+            <v-card
+              v-for="task in tasks[key]" :key="task.id"
+              class="black--text mb-1 mt-1 bg-none"
+              :data-taskid="task.id"
+            >
+              <task v-bind:task="task"></task>
+            </v-card>
+          </draggable>
+        </div>
         </v-flex>
       </v-layout>
     </v-container>
@@ -249,6 +251,7 @@
         show: false,
         id: 0
       };"
+      v-on:edit-task="reloadTask();"
     ></detail-task>
 </v-container>
 </template>
@@ -490,6 +493,12 @@ export default {
       })
     },
 
+    showTaskDetail(event){
+      event.preventDefault();
+      event.stopPropagation();
+      this.detail_task.show = true;
+    },
+
     chooseTask (choose){
       let item = choose.item;
       let task_id = item.dataset.taskid;
@@ -501,7 +510,6 @@ export default {
           card.style.setProperty("background-color", "");
         }
       });
-      this.detail_task.show = true;
       this.detail_task.id = Number(task_id);
     },
 

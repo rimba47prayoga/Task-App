@@ -17,15 +17,15 @@
       </v-card-title>
       <v-card-text grid-list-sm class="pa-4" style="max-height: 500px">
         <v-form
-        v-model="valid"
-        ref="formCreateTask"
-        @submit.prevent.stop="submitForm($event)"
-        lazy-validation
-        class="create-task-form"
+          v-model="valid"
+          ref="formCreateTask"
+          @submit.prevent.stop="submitForm($event)"
+          lazy-validation
+          class="create-task-form"
         >
         <v-layout row wrap>
-          <!-- Task Type -->
-          <v-flex xs12>
+          <!-- Project -->
+          <v-flex xs11>
             <label class="input-label">
               Project
               <span class="required">*</span>
@@ -41,7 +41,6 @@
                 item-text="name"
                 item-value="id"
                 placeholder="Project"
-                clearable
                 solo
                 flat
               >
@@ -81,7 +80,7 @@
           </v-flex>
 
           <!-- Task Type -->
-          <v-flex xs12>
+          <v-flex xs11 style="border-bottom: 1px solid #ddd;" class="mb-3">
             <label class="input-label">
               Task Type
               <span class="required">*</span>
@@ -97,7 +96,6 @@
                 item-text="label"
                 item-value="type"
                 placeholder="Task Type"
-                clearable
                 @change="changeTaskType"
                 solo
                 flat
@@ -170,22 +168,17 @@
           <!-- Descriptions -->
           <v-flex xs12>
             <label class="input-label">Descriptions</label>
-            <v-flex xs11>
-              <v-textarea
+            <v-flex xs11 class="mt-1">
+              <quill-editor
+                ref="my-text"
                 v-model="descriptions"
-                :auto-grow="true"
-                row-height="14"
-                name="input-7-4"
-                placeholder="Descriptions"
-                prepend-inner-icon="description"
-                solo
-                flat
-              ></v-textarea>
+                :options="quill.editorOption"
+              ></quill-editor>
             </v-flex>
           </v-flex>
 
           <!-- Priority -->
-          <v-flex xs12>
+          <v-flex xs12 class="mt-4">
             <label class="input-label">
               Priority
               <span class="required">*</span>
@@ -201,7 +194,6 @@
                 item-text="label"
                 item-value="type"
                 placeholder="Priority"
-                clearable
                 solo
                 flat
               >
@@ -439,6 +431,12 @@
 </template>
 
 <script>
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+import { quillEditor } from 'vue-quill-editor';
+
 import { mapState } from "vuex";
 import { EventBus } from '../../event-bus.js';
 
@@ -448,6 +446,9 @@ import TaskPriority from "../../constants/TaskPriority.js";
 import request from '../../services/request.js';
 
 export default {
+  components: {
+    quillEditor
+  },
   data(){
     return {
       valid: true, // model form
@@ -518,7 +519,27 @@ export default {
       deadline: null,
       select_deadline: false,
       label: '',
-      descriptions: ''
+      descriptions: '',
+      quill: {
+        editorOption: {
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'strike'],        // toggled buttons
+              ['blockquote', 'code-block'],
+
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+
+              [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+
+              [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+              [{ 'align': [] }],
+
+              ['clean'],                                         // remove formatting button
+            ]
+          }
+        }
+      }
     }
   },
   methods: {

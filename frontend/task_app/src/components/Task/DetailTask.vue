@@ -11,7 +11,8 @@
       <v-card-title
         class="blue darken-3 py-3 title white--text mb-2"
       >
-        <v-icon class="ml-1 mr-3 white--text">{{ task.task_type_icon }}</v-icon>
+        {{ $store.getters.selected_project.name }} - {{ $store.getters.selected_project.project_type }} /
+        <v-icon class="ml-1 mr-1 white--text">{{ task.task_type_icon }}</v-icon>
         {{ task.branch }}
         <v-spacer></v-spacer>
         <v-btn icon depressed class="ma-0 mr-3" @click.prevent>
@@ -43,7 +44,7 @@
               <template v-if="quill.show">
                 <quill-editor
                   ref="my-text"
-                  v-model="task.descriptions"
+                  v-model="descriptions"
                   :options="quill.editorOption"
                 ></quill-editor>
 
@@ -51,29 +52,36 @@
                   <v-btn
                     color="primary"
                     depressed
-                    @click.prevent
+                    @click="editDescriptions()"
                     class="ml-0"
                     style="padding: 0 16px;min-width: 60px;border-radius: 3px;"
                   >
                       Save
                     </v-btn>
-                  <v-btn flat @click="quill.show = false;" class="mr-0 ml-0">Cancel</v-btn>
+                  <v-btn flat @click="cancelEditDescriptions()" class="mr-0 ml-0">Cancel</v-btn>
                 </div>
               </template>
-
-              <v-text-field v-else
-                  v-model="task.descriptions"
-                  type="text"
-                  prepend-icon=""
-                  label="Add descriptions..."
-                  solo
-                  flat
-                  hide-details
-                  class="input-hover"
-                  @click="quill.show = true;"
-              >
-
-              </v-text-field>
+              <div v-else
+                @click="quill.show = true;"
+                class="v-input input-hover v-text-field v-text-field--single-line v-text-field--solo v-text-field--solo-flat v-text-field--enclosed v-input--hide-details theme--light">
+                <div class="v-input__control">
+                  <div class="v-input__slot">
+                    <div class="v-text-field__slot">
+                      <label
+                        v-if="!task.descriptions"
+                        aria-hidden="true"
+                        class="v-label theme--light"
+                        style="left: 0px; right: auto; position: absolute;"
+                      >
+                        Add descriptions...
+                      </label>
+                      <template v-else>
+                        <div style="width: 100%;height: 100%;" v-html="task.descriptions"></div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </v-flex>
           </v-flex>
 
@@ -99,6 +107,7 @@
                   solo
                   flat
                   class="input-hover"
+                  @change="editAssignee()"
                 >
                   <template slot="no-data">
                     <v-list-tile>
@@ -167,6 +176,7 @@
                   solo
                   hide-details
                   class="input-hover"
+                  @change="editDeadline()"
                 ></v-text-field>
                 <v-date-picker v-model="task.deadline" @input="$refs.select_deadline.save(task.deadline)"></v-date-picker>
               </v-menu>
@@ -190,6 +200,7 @@
                 class="input-hover"
                 prepend-icon=""
                 append-icon=""
+                @change="editProgress()"
               >
                 <template slot="no-data">
                   <v-list-tile>
@@ -247,6 +258,7 @@
                   solo
                   flat
                   class="input-hover"
+                  @change="editPriority()"
                 >
                   <template slot="no-data">
                     <v-list-tile>
@@ -387,6 +399,7 @@ export default {
         },
         descriptions: ''
       },
+      descriptions: '',  // for quill editor
       assignee: {
         items: [],
         is_loading: false,
@@ -451,6 +464,49 @@ export default {
           break;
       }
       return class_list.join(' ');
+    },
+    submitEdit(data){
+      return request.patch(`task/list/${this.id}`, data)
+    },
+    editDescriptions(){
+      this.submitEdit({
+        descriptions: this.descriptions
+      })
+      .then(response => {
+        this.task.descriptions = response.data.descriptions;
+        this.quill.show = false;
+      })
+    },
+    cancelEditDescriptions(){
+      this.quill.show = false;
+      this.descriptions = this.task.descriptions;
+    },
+
+    editAssignee(){
+      this.submitEdit({
+        assignee: this.task.assignee
+      })
+    },
+    editDeadline(){
+      this.submitEdit({
+        deadline: this.task.deadline
+      })
+    },
+    editProgress(){
+      this.submitEdit({
+        progress: this.task.progress.type
+      })
+      .then(response => {
+        this.$emit('edit-task');
+      })
+    },
+    editPriority(){
+      this.submitEdit({
+        priority: this.task.priority.type
+      })
+      .then(response => {
+        this.$emit('edit-task');
+      })
     }
   },
   watch: {
@@ -466,6 +522,7 @@ export default {
           task.progress = TaskProgress.getProgressDisplay(task.progress);
           task.priority = TaskPriority.getPriorityDisplay(task.priority);
           this.task = task;
+          this.descriptions = task.descriptions;
           this.show_dialog = true;
         });
 
@@ -523,9 +580,15 @@ export default {
   color: rgb(0, 102, 68);
 }
 
-.ql-snow .ql-editor pre.ql-syntax {
-  background: #ebecf0 !important;
-  color: black !important;
+.ql-snow .ql-editor pre.ql-syntax, pre.ql-syntax {
+  font-size: 12px;
+  background: rgb(244, 245, 247) none repeat scroll 0% 0%;
+  color: rgb(23, 43, 77);
+  border-radius: 3px;
+  display: inline;
+  overflow-x: auto;
+  padding: 2px 4px;
+  transform: translate3d(0px, 0px, 0px);
 }
 
 .textarea-title textarea {

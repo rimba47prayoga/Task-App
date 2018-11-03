@@ -25,7 +25,7 @@
         flat
         no-filter
         hide-no-data
-        label="Search"
+        label="Search anything here.."
         prepend-inner-icon="search"
         solo-inverted
         :menu-props="{

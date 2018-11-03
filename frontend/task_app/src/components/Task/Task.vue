@@ -7,12 +7,9 @@
             class="white-card"
             :data-taskid="task.id"
           >
-            <v-tooltip bottom open-delay="800" max-width="160" nudge-top="20">
-              <v-card-title class="primary-title task-title" slot="activator">
-                <div>{{ task.title }}</div>
-              </v-card-title>
-              <span>{{ task.title }}</span>
-            </v-tooltip>
+            <v-card-title class="primary-title task-title">
+              <div>{{ task.title }}</div>
+            </v-card-title>
             <v-card-actions class="pa-0 pl-2 pr-2">
               <v-icon v-bind:class="class_task_type">{{ getTaskTypeIcon() }}</v-icon>
               <v-icon v-bind:class="class_priority">{{ getTaskPriorityIcon() }}</v-icon>

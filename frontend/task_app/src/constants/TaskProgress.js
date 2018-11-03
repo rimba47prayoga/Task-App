@@ -28,7 +28,7 @@ export default {
         type: this.DONE
       }
     ];
-    if (progress) {
+    if (progress != null) {
       progress = Number(progress);
       return result.filter(item => {
         return item.type == progress;

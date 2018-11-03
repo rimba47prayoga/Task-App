@@ -33,6 +33,9 @@ export default {
   put (url, data) {
     return axios.put(url, data);
   },
+  patch (url, data) {
+    return axios.patch(url, data);
+  },
   redirect(to) {
     return router.push(to)
   }
