@@ -39,7 +39,7 @@
           <v-badge color="red" overlap class="mr-3">
               <span slot="badge">{{ this.$store.getters.notifications.count }}</span>
                 <v-icon large>
-                  notifications
+                  notifications_active
                 </v-icon>
             </v-badge>
           New notifications

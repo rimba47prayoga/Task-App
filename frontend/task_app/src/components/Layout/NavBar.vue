@@ -83,7 +83,7 @@
         >
           <v-btn icon large class="mr-4" slot="activator" @click="pullNotifications()">
             <v-badge color="red" overlap>
-              <span slot="badge">{{ notifications.unread_count }}</span>
+              <span slot="badge" v-if="notifications.unread_count > 0">{{ notifications.unread_count }}</span>
                 <v-icon>
                   notifications
                 </v-icon>
@@ -92,7 +92,17 @@
 
           <v-card>
             <v-toolbar card dense class="white-grey-blue">
-              <v-toolbar-title><h4>Notifications</h4></v-toolbar-title>
+              <v-toolbar-title>
+                <h4>Notifications</h4>
+              </v-toolbar-title>
+              <template v-if="notifications.reading.is_read">
+                <v-spacer></v-spacer>
+                <v-btn ripple icon @click="notifications.reading.is_read = false;
+                                           notifications.reading.item = {};"
+                >
+                  <v-icon>clear</v-icon>
+                </v-btn>
+              </template>
             </v-toolbar>
             <v-divider></v-divider>
             <div style="max-height: 400px; min-height: 400px;overflow-y:auto">
@@ -106,40 +116,48 @@
                 ></v-progress-circular>
               </v-flex>
 
-              <v-list
-                v-if="!notifications.isLoading"
-                v-for="item in notifications.items"
-                :key="item.id"
-                three-line
-                class="pa-0"
-              >
-                <v-list-tile ripple @click.prevent>
+              <template v-else-if="!notifications.isLoading && !notifications.reading.is_read">
+                <v-list
+                  v-for="item in notifications.items"
+                  :key="item.id"
+                  three-line
+                  class="pa-0"
+                >
+                  <v-list-tile ripple @click.prevent.stop="readNotification(item)">
 
-                  <v-list-tile-content>
-                    <v-list-tile-title style="font-weight: 500">{{ item.title }}</v-list-tile-title>
-                    <v-list-tile-sub-title>
-                      <v-icon
-                      :class="item.related_data.task_type == '0'
-                        ? 'task'
-                        : item.related_data.task_type == 1
-                        ? 'sub-task'
-                        : 'bug'"
-                        style="font-size: 18px;"
-                      >
-                        {{ getTaskTypeIcon(item.related_data.task_type) }}
-                      </v-icon>
+                    <v-list-tile-content>
+                      <v-list-tile-title style="font-weight: 500">{{ item.title }}</v-list-tile-title>
+                      <v-list-tile-sub-title>
+                        <v-icon
+                        :class="item.related_data.task_type == '0'
+                          ? 'task'
+                          : item.related_data.task_type == 1
+                          ? 'sub-task'
+                          : 'bug'"
+                          style="font-size: 18px;"
+                        >
+                          {{ getTaskTypeIcon(item.related_data.task_type) }}
+                        </v-icon>
 
-                      [{{ item.related_data.branch_name }}] {{ item.related_data.title }}
-                    </v-list-tile-sub-title>
-                  </v-list-tile-content>
-                  <v-list-tile-action>
-                    <v-badge color="red" overlap>
-                      <span slot="badge">1</span>
-                    </v-badge>
-                  </v-list-tile-action>
-                </v-list-tile>
-                <v-divider></v-divider>
-              </v-list>
+                        [{{ item.related_data.branch_name }}] {{ item.related_data.title }}
+                      </v-list-tile-sub-title>
+                    </v-list-tile-content>
+                    <v-list-tile-action v-if="!item.is_read" style="min-width: 35px !important;">
+                      <v-badge color="red" overlap>
+                        <span slot="badge">1</span>
+                      </v-badge>
+                    </v-list-tile-action>
+                  </v-list-tile>
+                  <v-divider></v-divider>
+                </v-list>
+              </template>
+
+              <!-- Reading Notifications -->
+              <v-flex xs12 v-else>
+                <div class="title">
+                  {{ notifications.reading.item.title }}
+                </div>
+              </v-flex>
             </div>
               <v-btn block flat class="ma-0 white-grey-blue">See All Notifications</v-btn>
             <v-divider></v-divider>
@@ -250,7 +268,11 @@ export default {
         isLoading: false,
         items: [],
         unread_count: 0,
-        new_notifications: true
+        new_notifications: true,
+        reading: {
+          is_read: false,
+          item: {}
+        }
       }
     }
   },
@@ -289,26 +311,10 @@ export default {
       this.notifications.isLoading = true;
       request.get('notifications/list')
       .then(response => {
-        let notifications = [];
         if (!response.data.length){
           return;
         }
-        let unread_notif_id = [];
-        response.data.map((item, index) => {
-          if (!item.is_read){  // count unread notifications
-            if (unread_notif_id.indexOf(item.notification_id) > -1){
-              notifications.map((notif, index) => {
-                if (notif.notification_id == item.notification_id){
-                  item.unread_count += 1;
-                }
-              })
-            } else {
-              item.unread_count = 1;
-            }
-          }
-          notifications.push(item);
-        });
-        this.notifications.items = notifications;
+        this.notifications.items = response.data;
       })
       .finally(() => {
         this.notifications.isLoading = false;
@@ -330,6 +336,16 @@ export default {
           });
           this.notifications.unread_count = response.data.count;
           this.notifications.new_notifications = true;
+        }
+      })
+    },
+    readNotification(item){
+      this.notifications.reading.is_read = true;
+      this.notifications.reading.item = item;
+      this.notifications.items.map((notification, index) => {
+        if (notification.id == item.id){
+          notification.is_read = true;
+          this.notifications.unread_count -= 1;
         }
       })
     }
