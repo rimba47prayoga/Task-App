@@ -185,8 +185,9 @@
         dark
         fab
       >
-        <v-icon>more_vert</v-icon>
-        <v-icon>close</v-icon>
+        <v-icon v-if="fab">close</v-icon>
+        <v-icon v-else>more_vert</v-icon>
+
       </v-btn>
       <v-tooltip left>
       <v-btn

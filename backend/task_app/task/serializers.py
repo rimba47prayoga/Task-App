@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import serializers
 
+from notifications.choices import ASSIGNEE_TASK, UN_ASSIGNEE_TASK
+from notifications.tasks import NotificationTask
 from project.models import TaskProject
 from .models import Task
 from .choices import TaskChoices
@@ -78,6 +80,41 @@ class CreateTaskSerializer(serializers.Serializer):
         ]
 
 
+class UpdateTaskSerializer(serializers.ModelSerializer):
+    assignee = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        required=False,
+        allow_null=True
+    )
+
+    def update(self, instance, validated_data):
+        user = self.context.get('request').user  # current user
+        assignee = validated_data.get('assignee')  # recipient
+        if assignee:
+            # assignee to other user
+            if assignee != instance.assignee:
+                if assignee != user:
+                    payload = {
+                        'title': f'{user.username} assigned an task to you.',
+                        'recipient': assignee.id,  # celery can't receive class object
+                        'subject': ASSIGNEE_TASK,
+                        'related_data': instance.id
+                    }
+                else:
+                    payload = {
+                        'title': f'{user.username} unassigned an task from you.',
+                        'recipient': instance.assignee.id,
+                        'subject': UN_ASSIGNEE_TASK,
+                        'related_data': instance.id
+                    }
+                NotificationTask.task_push_notification.delay(payload)
+        return super(UpdateTaskSerializer, self).update(instance, validated_data)
+
+    class Meta:
+        model = Task
+        exclude = ['is_deleted', 'deleted_time']
+
+
 class UpdateProgressSerializer(serializers.Serializer):
     old_progress = serializers.ChoiceField(choices=TaskChoices.PROGRESS_CHOICES)
     new_progress = serializers.ChoiceField(choices=TaskChoices.PROGRESS_CHOICES)
@@ -107,7 +144,7 @@ class UpdateProgressSerializer(serializers.Serializer):
         fields = ['old_progress', 'new_progress']
 
 
-class TaskDashboardSerializer(serializers.ModelSerializer):
+class SimpleTaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task

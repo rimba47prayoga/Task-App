@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 from celery.schedules import crontab
-from celery.task import periodic_task
+from celery.task import periodic_task, task as celery_task
 from django.contrib.auth.models import User
 
 from task.choices import TaskChoices
@@ -10,7 +10,32 @@ from .choices import DEADLINE, PENDING_TASK, NOT_YET_ASSIGNEE
 from .models import Notifications
 
 
-class TaskAppSchedule(object):
+class NotificationTask(object):
+
+    @staticmethod
+    @celery_task(name='task_push_notification')
+    def task_push_notification(payload: dict):
+        recipient = User.objects.get(id=payload.get('recipient'))
+        subject = payload.get('subject')
+        branch_name = payload.get('branch_name')
+        title = payload.get('title')
+        message = payload.get('message', '')
+        related_data = Task.objects.get(id=payload.get('related_data'))
+        notification = Notifications()
+        notification.notification_id = Notifications.generate_notification_id(
+            user_id=recipient.id,
+            subject=subject,
+            branch_name=branch_name
+        )
+        notification.user = recipient
+        notification.title = title
+        notification.subject = subject
+        notification.message = message
+        notification.content_object = related_data
+        notification.save()
+
+
+class NotificationSchedule(object):
 
     @staticmethod
     @periodic_task(run_every=(crontab(hour=23, minute=12)),
@@ -49,6 +74,7 @@ class TaskAppSchedule(object):
                     notification.title = 'Complete your deadline.'
                     notification.message = message
                     notification.user = task.assignee
+                    notification.content_object = task
                     notification.save()
                 else:
                     users = User.objects.all()
@@ -67,6 +93,7 @@ class TaskAppSchedule(object):
                                              f'{task.branch_name}.'
                         notification.message = message
                         notification.user = user
+                        notification.content_object = task
                         notification.save()
             result.append("Successfully pushed deadline notifications.")
         else:
@@ -88,6 +115,7 @@ class TaskAppSchedule(object):
                     notification.title = f'Task {task.branch_name} is out of deadline.'
                     notification.message = message
                     notification.user = task.assignee
+                    notification.content_object = task
                     notification.save()
                 else:
                     users = User.objects.all()
@@ -105,6 +133,7 @@ class TaskAppSchedule(object):
                         notification.title = f'Task {task.branch_name} is out of deadline.'
                         notification.message = message
                         notification.user = user
+                        notification.content_object = task
                         notification.save()
             result.append("Successfully pushed pending task notifications.")
         else:

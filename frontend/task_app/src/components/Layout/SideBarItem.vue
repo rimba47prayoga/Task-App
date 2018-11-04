@@ -122,8 +122,8 @@ export default {
         {
           icon: "library_books",
           text: "Tasks",
-          link: `/project/${this.$store.getters.selected_project.slug}/task/list`,
-          name: "task-list"
+          name: "task-list",
+          event: this.redirectToTask
         },
         {
           icon: "history",
@@ -150,6 +150,9 @@ export default {
     redirect(to){
       return request.redirect(to);
     },
+    redirectToTask(){
+      return this.redirect(`/project/${this.selectedProject.slug}/task/list`);
+    },
     setMiniVariant(){
       this.$emit('set-mini-variant');
     },
@@ -167,9 +170,9 @@ export default {
           slug: project.slug
         }
       });
-      this.realoadProjectList();
+      this.reloadProjectList();
     },
-    realoadProjectList(){
+    reloadProjectList(){
       var projects = localStorage.getItem('projects');
       let selected_project = this.$store.getters.selected_project;
       if (projects == null || !projects) {
@@ -192,7 +195,7 @@ export default {
       }
   },
   created(){
-    this.realoadProjectList();
+    this.reloadProjectList();
   },
   computed: {
     ...mapState([

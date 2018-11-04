@@ -454,57 +454,18 @@ export default {
       valid: true, // model form
 
       default_rules: [
-        v => !!v || "This field is required"
+        v => {
+          v = v.toString();
+          return !!v || "This field is required"
+        }
       ],
       selected_project: null,
       project_items: [],
       title: '',
       selected_task_type: TaskType.TASK.toString(),
       selected_priority: TaskPriority.MEDIUM,
-      priority_items: [
-        {
-          type: TaskPriority.LOWEST.toString(),
-          label: "Lowest",
-          icon: "arrow_downward",
-        },
-        {
-          type: TaskPriority.LOW,
-          label: "Low",
-          icon: "arrow_downward",
-        },
-        {
-          type: TaskPriority.MEDIUM,
-          label: "Medium",
-          icon: "arrow_upward",
-        },
-        {
-          type: TaskPriority.HIGH,
-          label: "High",
-          icon: "arrow_upward",
-        },
-        {
-          type: TaskPriority.HIGHEST,
-          label: "Highest",
-          icon: "arrow_upward",
-        }
-      ],
-      task_type: [
-        {
-          type: TaskType.TASK.toString(),
-          label: "Task",
-          icon: "check_box"
-        },
-        {
-          type: TaskType.SUB_TASK.toString(),
-          label: "Sub Task",
-          icon: "branding_watermark"
-        },
-        {
-          type: TaskType.BUG.toString(),
-          label: "Bug",
-          icon: "bug_report"
-        }
-      ],
+      priority_items: TaskPriority.getPriorityDisplay(),
+      task_type: TaskType.getTaskTypeDisplay(),
       typeIsSubTask: false,
       isLoadingParentTask: false,
       parent_task: null,
@@ -564,6 +525,7 @@ export default {
     },
     submitForm(event){
       if(this.$refs.formCreateTask.validate()){
+        console.log(event)
         if (event.explicitOriginalTarget.type != 'button'){
           return false;
         }

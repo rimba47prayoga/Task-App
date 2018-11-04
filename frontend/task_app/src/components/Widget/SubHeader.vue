@@ -17,6 +17,6 @@ export default {
 
 <style>
 .subheader-text {
-  color: #616161 !important;
+  color: #172b4d !important;
 }
 </style>

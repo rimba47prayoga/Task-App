@@ -16,8 +16,12 @@ from .filters import TaskFilter
 from .models import Task
 from .pagination import TaskDashboardPagination
 from .serializers import (
-    TaskSerializer, SimpleUserSerializer, CreateTaskSerializer,
-    UpdateProgressSerializer, TaskDashboardSerializer
+    TaskSerializer,
+    SimpleUserSerializer,
+    CreateTaskSerializer,
+    UpdateTaskSerializer,
+    UpdateProgressSerializer,
+    SimpleTaskSerializer
 )
 from .utils import TaskHighlighter
 
@@ -46,10 +50,12 @@ class TaskViewSet(generics.RetrieveAPIView,
             return SimpleUserSerializer
         elif self.action == 'create':
             return CreateTaskSerializer
+        elif self.action in ['update', 'partial_update']:
+            return UpdateTaskSerializer
         elif self.action == 'update_progress':
             return UpdateProgressSerializer
         elif self.action == 'dashboard':
-            return TaskDashboardSerializer
+            return SimpleTaskSerializer
         return super(TaskViewSet, self).get_serializer_class()
 
     def create(self, request, *args, **kwargs):

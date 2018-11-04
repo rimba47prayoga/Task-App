@@ -183,6 +183,63 @@
               </v-menu>
             </v-flex>
 
+            <!-- Task Type -->
+            <v-flex xs12>
+              <label class="input-label ml-2">
+                Task Type
+              </label>
+              <v-flex xs12>
+                <v-combobox
+                  append-icon=""
+                  v-model="task.task_type"
+                  :items="task_type.items"
+                  required
+                  hide-no-data
+                  hide-details
+                  item-text="label"
+                  item-value="type"
+                  label="Task Type"
+                  @change="editTaskType()"
+                  solo
+                  flat
+                  class="input-hover"
+                >
+
+                  <!-- items that have been selected -->
+                  <template
+                    slot="selection"
+                    slot-scope="{ item, selected }"
+                  >
+                    <v-icon
+                    :class="item.type == 0
+                    ? 'mr-2 task'
+                    : item.type == 1
+                    ? 'mr-2 sub-task'
+                    : 'mr-2 bug'"
+                    >{{ item.icon }}</v-icon>
+                    {{ item.label }}
+                  </template>
+
+                  <!-- items in dropdown autocomplete -->
+                  <template
+                    slot="item"
+                    slot-scope="{ item, tile }"
+                  >
+                    <v-icon
+                    :class="item.type == 0
+                    ? 'mr-2 task'
+                    : item.type == 1
+                    ? 'mr-2 sub-task'
+                    : 'mr-2 bug'">{{ item.icon }}</v-icon>
+                    <v-list-tile-content>
+                      <v-list-tile-title v-text="item.label"></v-list-tile-title>
+                    </v-list-tile-content>
+                  </template>
+
+                </v-combobox>
+              </v-flex>
+            </v-flex>
+
             <!-- Progress -->
             <v-flex xs12 class="my-3">
               <label class="input-label ml-2">
@@ -203,14 +260,6 @@
                 append-icon=""
                 @change="editProgress()"
               >
-                <template slot="no-data">
-                  <v-list-tile>
-                    <v-list-tile-title>
-                      Search for your favorite
-                      <strong>Cryptocurrency</strong>
-                    </v-list-tile-title>
-                  </v-list-tile>
-                </template>
 
                 <template
                   slot="selection"
@@ -381,6 +430,7 @@ import * as TaskUtils from "./utils/task.js";
 
 import TaskProgress from '../../constants/TaskProgress.js';
 import TaskPriority from '../../constants/TaskPriority.js';
+import TaskType from '../../constants/TaskType.js';
 
 
 export default {
@@ -401,6 +451,9 @@ export default {
         descriptions: ''
       },
       descriptions: '',  // for quill editor
+      task_type: {
+        items: TaskType.getTaskTypeDisplay()
+      },
       assignee: {
         items: [],
         is_loading: false,
@@ -483,6 +536,12 @@ export default {
       this.descriptions = this.task.descriptions;
     },
 
+    editTaskType(){
+      this.submitEdit({
+        task_type: this.task.task_type.type
+      })
+    },
+
     editAssignee(){
       this.submitEdit({
         assignee: this.task.assignee
@@ -522,6 +581,7 @@ export default {
           task.task_type_icon = TaskUtils.getTaskTypeIcon(task.task_type);
           task.progress = TaskProgress.getProgressDisplay(task.progress);
           task.priority = TaskPriority.getPriorityDisplay(task.priority);
+          task.task_type = TaskType.getTaskTypeDisplay(task.task_type);
           this.task = task;
           this.descriptions = task.descriptions;
           this.show_dialog = true;

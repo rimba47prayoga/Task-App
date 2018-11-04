@@ -54,7 +54,21 @@
                 </v-flex>
               </v-list-tile>
 
+              <v-list-tile v-if="isLoading" class="my-5">
+                <!-- Loading component -->
+                <v-flex xs12>
+                  <v-progress-circular
+                    :size="50"
+                    :width="6"
+                    color="primary"
+                    indeterminate
+                    class="center-content"
+                  ></v-progress-circular>
+                </v-flex>
+              </v-list-tile>
+
               <v-list-tile
+                v-else
                 v-for="task in tasks"
                 :key="task.id"
                 class="assignee-items-container"
@@ -94,6 +108,13 @@
                   </v-icon>
                 </v-flex>
               </v-list-tile>
+
+              <v-list-tile v-if="!pagination.next && !pagination.prev && !isLoading">
+                <div class="headline center-content">
+                  Empty Task
+                </div>
+                <v-icon large>assignment_late</v-icon>
+              </v-list-tile>
               <v-list-tile class="mt-3">
                 <v-spacer></v-spacer>
                 <v-pagination
@@ -129,7 +150,8 @@ export default {
         prev: null,
         total_pages: 0,
         current_page: 1
-      }
+      },
+      isLoading: false
     }
   },
   methods: {
@@ -143,6 +165,7 @@ export default {
       return TaskUtils.getTaskPriorityIcon(priority);
     },
     reloadTask(page){
+      this.isLoading = true;
       var url = 'task/list/dashboard';
       if (page){
         url = addQueryParam(url, {
@@ -156,6 +179,7 @@ export default {
         this.pagination.prev = response.data.previous;
         this.pagination.total_pages = response.data.total_pages;
         this.pagination.current_page = response.data.current_page;
+        this.isLoading = false;
       })
     }
   },
@@ -190,5 +214,11 @@ export default {
 .v-pagination button:not(.v-pagination__item--active):hover,
 .assignee-items-container:hover {
   background-color: #ebecf0 !important;
+}
+.center-content{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

@@ -16,11 +16,6 @@ class NotificationsViewSet(mixins.ListModelMixin,
         queryset = self.queryset.filter(user=request.user)
         return queryset
 
-    def list(self, request, *args, **kwargs):
-        import time
-        time.sleep(1)
-        return super(NotificationsViewSet, self).list(request, *args, **kwargs)
-
     @action(methods=['get'], detail=False)
     def unread_count(self, request):
         count = self.get_queryset().filter(is_read=False).count()

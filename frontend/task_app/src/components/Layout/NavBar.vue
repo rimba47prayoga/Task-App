@@ -116,8 +116,21 @@
                 <v-list-tile ripple @click.prevent>
 
                   <v-list-tile-content>
-                    <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                    <v-list-tile-sub-title>{{ item.message }}</v-list-tile-sub-title>
+                    <v-list-tile-title style="font-weight: 500">{{ item.title }}</v-list-tile-title>
+                    <v-list-tile-sub-title>
+                      <v-icon
+                      :class="item.related_data.task_type == '0'
+                        ? 'task'
+                        : item.related_data.task_type == 1
+                        ? 'sub-task'
+                        : 'bug'"
+                        style="font-size: 18px;"
+                      >
+                        {{ getTaskTypeIcon(item.related_data.task_type) }}
+                      </v-icon>
+
+                      [{{ item.related_data.branch_name }}] {{ item.related_data.title }}
+                    </v-list-tile-sub-title>
                   </v-list-tile-content>
                   <v-list-tile-action>
                     <v-badge color="red" overlap>
@@ -219,6 +232,7 @@ import { mapState } from 'vuex'
 import { EventBus } from '../../event-bus.js';
 import request from "../../services/request.js";
 import { toggleFullScreen } from '../../utils/common.js';
+import * as TaskUtils from "../Task/utils/task.js";
 
 export default {
   data(){
@@ -235,11 +249,18 @@ export default {
       notifications: {
         isLoading: false,
         items: [],
-        unread_count: 0
+        unread_count: 0,
+        new_notifications: true
       }
     }
   },
   methods: {
+    getTaskTypeIcon(task_type){
+      return TaskUtils.getTaskTypeIcon(task_type);
+    },
+    getTaskPriorityIcon(priority){
+      return TaskUtils.getTaskPriorityIcon(priority);
+    },
     setSidebar(){
       EventBus.$emit('toggleSidebar');
     },
@@ -262,6 +283,9 @@ export default {
       toggleFullScreen();
     },
     pullNotifications(){
+      if (!this.notifications.new_notifications){ // keep laziness
+        return;
+      }
       this.notifications.isLoading = true;
       request.get('notifications/list')
       .then(response => {
@@ -288,6 +312,7 @@ export default {
       })
       .finally(() => {
         this.notifications.isLoading = false;
+        this.notifications.new_notifications = false;
       })
     },
     pullNotificationsCount(){
@@ -304,6 +329,7 @@ export default {
             count: diff
           });
           this.notifications.unread_count = response.data.count;
+          this.notifications.new_notifications = true;
         }
       })
     }
